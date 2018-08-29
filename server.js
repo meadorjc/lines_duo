@@ -3,13 +3,18 @@ const bodyParser = require('body-parser');
 const app = express();
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const colors = ['red', 'green', 'blue', 'dark blue', 'dark green', 'light green', 'purple', 'white', 'black']
 
 //Bear model
 const Bear = require('./app/models/bear');
 //const Bear = mongoose.model('Bear', { name: String });
 
+//app.all('/', function(req, res, next) {
+//	res.header("Access-Control-Allow-Origin", "*");
+//	res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//	next()
+//});
 app.use(morgan('dev'));
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -28,6 +33,8 @@ const router = express.Router();
 
 router.use(function(req, res, next) {
 	console.log('request: ' );
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	next();
 });
 
@@ -37,8 +44,16 @@ router.get('/', function(req, res) {
 
 router.route('/bears')
 	.post(function(req, res) {
-		const bear = new Bear({ name: req.body.name });
-		//bear.name = req.body.name;
+		const bear = new Bear({ 
+			name: req.body.name,
+			color: { r: (Math.random() * 254),
+				g: (Math.random() * 254), 
+				b: (Math.random() * 254),
+				a: 100
+			}
+		
+		});
+		
 		console.log( "here!" +  bear.name );
 
 		bear.save(function(err, bear) {
