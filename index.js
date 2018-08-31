@@ -18,10 +18,11 @@ const htmlPath = path.join(__dirname, 'html');
 const port = process.env.PORT || 8080;
 
 const spacing = 50;
-const gridWidth = 600;
-const gridHeight = 600;
-
+const gridWidth = 1000;
+const gridHeight = 1000;
+const clear = { color: { r: 0, g: 0, b: 0, a: 0 } };
 lines_aa = {};
+
 
 app.use(morgan('dev'));
 app.use(express.static(htmlPath));
@@ -52,7 +53,7 @@ io.on('connection', function(socket){
 		color: { r: (Math.random() * 254),
 			g: (Math.random() * 254), 
 			b: (Math.random() * 254),
-			a: 100
+			a: 255 
 		},
 		s_id : socket.id
 			
@@ -83,7 +84,9 @@ io.on('connection', function(socket){
 	
 	//when a line gets placed
 	socket.on('placeline', function(line){
-
+		console.log(Math.round(new Date().getTime()/1000));
+		console.log(line);
+		lineString = [line.x1, line.y1, line.x2, line.y2].join(",")
 		//find the user
 		Bear.findById(line.m_id, 'color', { lean: true }, function(err, doc) { 
 
@@ -92,8 +95,15 @@ io.on('connection', function(socket){
 			&& validateNode(line.x2, line.y2)
 			&& validateLine(line.x1, line.y1, line.x2, line.y2)
 			){
+			//	console.log(doc);
+			//	console.log(!lines_aa[lineString]);
+			//	console.log(lines_aa[lineString] == clear.color);
+				
 				//TODO: append lines to user's db document
-				lines_aa[[line.x1, line.y1, line.x2, line.y2].join(",")] = doc.color;
+			//	if (!lines_aa[lineString] || lines_aa[lineString] == clear.color) lines_aa[lineString] = doc.color;
+			//	else lines_aa[lineString] = clear.color;
+				
+				lines_aa[lineString] = doc.color;
 			}	
 		});
 		//console.log('line: ' + JSON.stringify(line));
@@ -114,8 +124,6 @@ http.listen(port, function(){
 	console.log('listening on *:8080');
 });
 
-		//showLine[0] = new Line(d1x, d1y, d2x, d2y, 3, user.id);
-	
 function validateNode(x,y) {
 	return ( x >= spacing 
 		&& x <= gridWidth - spacing 
