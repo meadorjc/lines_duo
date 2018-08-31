@@ -1,0 +1,40 @@
+<html>
+<head>
+	<!-- <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script> -->
+	<script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
+	<script language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.js"></script>
+	<script language="javascript" type="text/javascript" src="sketch.js"></script>
+	<script language="javascript" type="text/javascript" src="grid.js"></script>
+	<script language="javascript" type="text/javascript" src="line.js"></script>
+	<script language="javascript" type="text/javascript" src="node.js"></script>
+	<script language="javascript" type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script> 
+		var socket = io(); 
+		let gridLines = {};
+		socket.on('initialize', function (response) {
+			console.log('connect');
+				initLoad = {
+					//name: response.name, 
+					s_id : response.s_id,
+						m_id : response.m_id,
+					color: { r: response.color.r,
+						g: response.color.g,
+						b: response.color.b,
+							a: response.color.a 
+					},
+					width : response.width,
+					height : response.height,
+					spacing: response.spacing
+			};
+		socket.emit('clientReady', {});
+		console.log(initLoad);
+		});
+		socket.on('lines_aa', function(lines){
+				gridLines = lines;
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>
