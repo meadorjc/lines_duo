@@ -84,17 +84,14 @@ io.on('connection', function(socket){
 	
 	//when a line gets placed
 	socket.on('placeline', function(line){
-		console.log(Math.round(new Date().getTime()/1000));
-		console.log(line);
-		lineString = [line.x1, line.y1, line.x2, line.y2].join(",")
+		//console.log(Math.round(new Date().getTime()/1000));
+		//console.log(line);
+		key = [line.x1, line.y1, line.x2, line.y2].join(",")
 		//find the user
 		Bear.findById(line.m_id, 'color', { lean: true }, function(err, doc) { 
 
 			//validate the nodes and associate the color to the line
-			if (validateNode(line.x1, line.y1)
-			&& validateNode(line.x2, line.y2)
-			&& validateLine(line.x1, line.y1, line.x2, line.y2)
-			){
+			if ( validate(line)){
 			//	console.log(doc);
 			//	console.log(!lines_aa[lineString]);
 			//	console.log(lines_aa[lineString] == clear.color);
@@ -103,11 +100,18 @@ io.on('connection', function(socket){
 			//	if (!lines_aa[lineString] || lines_aa[lineString] == clear.color) lines_aa[lineString] = doc.color;
 			//	else lines_aa[lineString] = clear.color;
 				
-				lines_aa[lineString] = doc.color;
+				lines_aa[key] = doc.color;
 			}	
 		});
 		//console.log('line: ' + JSON.stringify(line));
 
+	});
+	socket.on('clearline', function(key){
+		console.log(lines_aa[key]);
+		console.log(key);
+		//if ( validate(lines_aa[key]) ) {
+			lines_aa[key] = clear.color;
+		//}
 	});
 	
 	//when client is ready, start timer and begin sending existing lines
@@ -123,6 +127,13 @@ io.on('connection', function(socket){
 http.listen(port, function(){
 	console.log('listening on *:8080');
 });
+
+function validate(line){
+	return validateNode(line.x1, line.y1)
+		&& validateNode(line.x2, line.y2)
+		&& validateLine(line.x1, line.y1, line.x2, line.y2)
+
+}
 
 function validateNode(x,y) {
 	return ( x >= spacing 

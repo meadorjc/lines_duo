@@ -8,6 +8,7 @@ const clear = { color: { r: 0, g: 0, b: 0, a: 0 } };
 var player = true;
 var boxPlaced = false;
 var loopState = true;
+var cnv;
 var user = {
 	name: "",	
 	s_id : "",
@@ -37,8 +38,8 @@ function setup() {
 	grid = new Grid(initLoad.width, initLoad.height, initLoad.spacing, 1);
 	
 	cnv.mouseMoved(findNodes);
-	cnv.mousePressed(placeLine);
-
+	//cnv.mousePressed(placeLine);
+	
 	button = createButton('stop');
 	button.position(10,10);
 	button.mousePressed(toggle);
@@ -85,17 +86,34 @@ function draw() {
 //	}
 
 	stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
-        fill(255, 0 , 0);
+	fill(255, 0 , 0);
         strokeWeight(lineWidth);
         line(showLine.x1, showLine.y1, showLine.x2, showLine.y2);
 		
 
 	grid.show();
 
-	if (mouseIsPressed) {
-		placeLine()
-	}
 	
+}
+function mousePressed() {
+	if(keyCode === SHIFT && mouseIsPressed){
+		socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
+	}
+	else { 
+		if (mouseIsPressed) {
+			socket.emit('placeline', showLine);
+		}
+	}
+
+}
+function keyPressed(){
+	if (mouseIsPressed && keyCode === SHIFT){
+		socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
+	}
+	else if (mouseIsPressed) {
+		socket.emit('placeline', showLine);
+	}
+	//return false;
 }
 
 //black magic 
@@ -130,8 +148,10 @@ function findNodes(){
 }
 
 function placeLine(){
-	socket.emit('placeline', showLine);
+	//socket.emit('placeline', showLine);
+}
 
+function clearLine(){
 }
 
 function boxCheck(){
