@@ -4,3 +4,8 @@ node_modules/*
 *.ns
 journal/*
 journal
+mongod.lock
+storage.*
+./data/*
+./data
+data/

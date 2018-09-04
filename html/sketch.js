@@ -1,6 +1,8 @@
 var grid;
 let showLine = [];
 let lineWidth = 6;
+let diagonal = false;
+let showGrid = true;
 var linesPicked = [];
 var nodes = [];
 var nodes_aa = {};
@@ -18,7 +20,6 @@ var user = {
 		a: 100
 	}
 };
-
 var initLoad = {
 	s_id : "",
 	m_id : "", 
@@ -40,81 +41,105 @@ function setup() {
 	cnv.mouseMoved(findNodes);
 	//cnv.mousePressed(placeLine);
 	
-	button = createButton('stop');
-	button.position(10,10);
-	button.mousePressed(toggle);
+	//stop drawing
+	buttonStop = createButton('stop');
+	buttonStop.position(10,10);
+	buttonStop.mousePressed(function(){ 
+		if(loopState) {
+			noLoop();
+			buttonStop.html("start");
+		}else{
+			loop();
+			buttonStop.html("stop");
+		}
+		loopState = !loopState;
+	});	
 	
-}
-function toggle() {
-	if(loopState) {
-		noLoop();
-		button.html("start");
-	}else{
-		loop();
-		button.html("stop");
-	}
-	loopState = !loopState;
+	//clear
+	buttonClear = createButton('clear');
+	buttonClear.position(50, 10);
+	buttonClear.mousePressed(function() {
+		socket.emit('clearlines'); 
+	});
+	
+	//showGrid
+	buttonGrid = createButton('grid on');
+	buttonGrid.position(90, 10);
+	buttonGrid.mousePressed(function(){
+		if ( showGrid ){
+			showGrid = false;
+			buttonGrid.html("grid off");
+		} else {
+			showGrid = true;
+			buttonGrid.html("grid on");
+		}
+	});
+	
 }
 
 function draw() {
-		//console.log(response);
-		//console.log(user);
-
+	
 	background(200);
 	 
-	Object.keys(gridLines).forEach(function(l){
-	//	console.log(l);
-	//	console.log(gridLines);
-	//	console.log(gridLines["100,350,100,300"]);
-		l_coords = l.split(",");
-		//console.log(l_coords);
-		stroke(gridLines[l].r, gridLines[l].g, gridLines[l].b, gridLines[l].a);
+	Object.keys(gridLines).forEach(function(key){
+		//split the key into array
+		key_coords = key.split(",");
 
-        	//fill(255, 0 , 0);
         	strokeWeight(lineWidth);
-        	line(l_coords[0], l_coords[1], l_coords[2], l_coords[3]);
-		//linesPicked[i].show();
+		stroke(gridLines[key].r, gridLines[key].g, gridLines[key].b, gridLines[key].a);
+        	line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
 	});
 
-	//draw temp line
-//	if (mouseX && mouseY){
-//        tempLine = gridLines[[showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(",")];
-//	if (!tempLine || tempLine.color == clear.color){
-//		stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
-//	} else stroke(clear.color.r, clear.color.g, clear.color.b, clear.color.a);
-//	console.log(tempLine);
-//	}
 
-	stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
-	fill(255, 0 , 0);
-        strokeWeight(lineWidth);
-        line(showLine.x1, showLine.y1, showLine.x2, showLine.y2);
-		
 
-	grid.show();
-
+	text(key, 33, 65);	
+	text(keyCode, 53, 65);
 	
-}
-function mousePressed() {
-	if(keyCode === SHIFT && mouseIsPressed){
-		socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
-	}
-	else { 
-		if (mouseIsPressed) {
-			socket.emit('placeline', showLine);
-		}
-	}
+	//show preview line
+	stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
+        strokeWeight(lineWidth);
+	fill(255, 0 , 0);
+	
 
-}
-function keyPressed(){
-	if (mouseIsPressed && keyCode === SHIFT){
+	if ( showGrid ) grid.show();
+
+	//alter preview line and send events for key codes
+	if ( keyIsPressed === true 
+		&& keyCode === SHIFT){
+
+		//change color of line
+		stroke(0,0,0, 255);
+        	strokeWeight(1);
+
+	}
+	if (keyIsPressed === true && keyCode === CONTROL){
+		diagonal = true;
+	}
+	else { diagonal = false; }
+
+	//when placing lines
+	if( keyIsPressed === true 
+		&& keyCode === SHIFT 
+		&& mouseIsPressed){
+
 		socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
 	}
 	else if (mouseIsPressed) {
+		
 		socket.emit('placeline', showLine);
 	}
-	//return false;
+	
+	//draw line
+        line(showLine.x1, showLine.y1, showLine.x2, showLine.y2);
 }
+
+function mousePressed() {
+
+}
+function keyPressed(){
+
+}
+
 
 //black magic 
 function findNodes(){
@@ -133,10 +158,10 @@ function findNodes(){
 		//d2y = (mouseY < d1y) ? d1y-initLoad.spacing : (d1y+initLoad.spacing > height - initLoad.spacing ? height - initLoad.spacing : d1y+initLoad.spacing);
 
 		//Decide connecting node direction
-		if ((mouseX - d1x) > (mouseY - d1y)) {
-			d2x = d1x	
-		}else {
-			d2y = d1y
+		if (diagonal === false) {
+			if ((mouseX - d1x) > (mouseY - d1y)) {
+				d2x = d1x	
+			} else { d2y = d1y }
 		}
 
 		//console.log(d1x, d1y); 

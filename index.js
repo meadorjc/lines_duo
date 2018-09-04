@@ -113,6 +113,10 @@ io.on('connection', function(socket){
 			lines_aa[key] = clear.color;
 		//}
 	});
+	socket.on('clearlines', function(){
+		lines_aa = {};
+
+	});
 	
 	//when client is ready, start timer and begin sending existing lines
 	socket.on('clientReady', function() {
