@@ -3,13 +3,11 @@ let showLine = [];
 let lineWidth = 6;
 let diagonal = false;
 let showGrid = true;
+var loopState = true;
 var linesPicked = [];
 var nodes = [];
 var nodes_aa = {};
 const clear = { color: { r: 0, g: 0, b: 0, a: 0 } };
-var player = true;
-var boxPlaced = false;
-var loopState = true;
 var cnv;
 var user = {
 	name: "",	
@@ -90,8 +88,6 @@ function draw() {
         	line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
 	});
 
-
-
 	text(key, 33, 65);	
 	text(keyCode, 53, 65);
 	
@@ -100,32 +96,32 @@ function draw() {
         strokeWeight(lineWidth);
 	fill(255, 0 , 0);
 	
-
 	if ( showGrid ) grid.show();
 
 	//alter preview line and send events for key codes
-	if ( keyIsPressed === true 
-		&& keyCode === SHIFT){
-
+	//shift to clear 
+	if ( keyIsDown(SHIFT)){
 		//change color of line
 		stroke(0,0,0, 255);
         	strokeWeight(1);
-
 	}
-	if (keyIsPressed === true && keyCode === CONTROL){
-		diagonal = true;
-	}
+	//diagonal
+	if (keyIsDown(CONTROL)){ diagonal = true; }
 	else { diagonal = false; }
-
+	
+	if (  keyIsDown(SHIFT) && keyIsDown(CONTROL) && mouseIsPressed){
+		diagonal = true;
+		//clearLine();
+		socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
+	}
+	
 	//when placing lines
-	if( keyIsPressed === true 
-		&& keyCode === SHIFT 
-		&& mouseIsPressed){
-
+	if( keyIsDown(SHIFT) && mouseIsPressed){
+		//console.log(showLine);
+		//clearLine();
 		socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
 	}
 	else if (mouseIsPressed) {
-		
 		socket.emit('placeline', showLine);
 	}
 	
@@ -139,11 +135,13 @@ function mousePressed() {
 function keyPressed(){
 
 }
-
+function clearLine(){
+	console.log(showLine);
+	socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(","));
+}
 
 //black magic 
 function findNodes(){
-	
 	if ( mouseX >= initLoad.spacing && mouseX <= width - initLoad.spacing && mouseY >= initLoad.spacing && mouseY <= height - initLoad.spacing) {
 		
 		//Origin Node
@@ -154,22 +152,15 @@ function findNodes(){
 		d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing/2) ? (Math.ceil(mouseX/initLoad.spacing)*initLoad.spacing) : (Math.floor(mouseX/initLoad.spacing)*initLoad.spacing);
 		d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing/2) ? (Math.ceil(mouseY/initLoad.spacing)*initLoad.spacing) : (Math.floor(mouseY/initLoad.spacing)*initLoad.spacing);
 
-		//d2x = (mouseX < d1x) ? d1x-initLoad.spacing : (d1x+initLoad.spacing > width	- initLoad.spacing ? width	- initLoad.spacing : d1x+initLoad.spacing); 
-		//d2y = (mouseY < d1y) ? d1y-initLoad.spacing : (d1y+initLoad.spacing > height - initLoad.spacing ? height - initLoad.spacing : d1y+initLoad.spacing);
-
 		//Decide connecting node direction
 		if (diagonal === false) {
 			if ((mouseX - d1x) > (mouseY - d1y)) {
 				d2x = d1x	
 			} else { d2y = d1y }
 		}
-
-		//console.log(d1x, d1y); 
-		//console.log(d2x, d2y); 
-		console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
+		//console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
 		showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
 	}	
-
 }
 
 function placeLine(){
@@ -179,18 +170,3 @@ function placeLine(){
 function clearLine(){
 }
 
-function boxCheck(){
-	var orient = (showLine[0].x1 == showLine[0].x2) ? 'vertical' : 'horizontal';
-	if(orient == 'vertical') {
-		//left side check
-		 // for(var i = 0; i < )
-	}
-
-	return false;
-}
-
-
-
-function changeColor(){	
-	player = !player;
-}
