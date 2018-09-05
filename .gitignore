@@ -9,3 +9,7 @@ storage.*
 ./data/*
 ./data
 data/
+.eslintrc.json
+.eslintrc.json
+package-lock.json
+*lock.json
