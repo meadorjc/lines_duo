@@ -21,6 +21,8 @@ const spacing = 50
 const gridWidth = 1000
 const gridHeight = 1000
 const clear = { color: { r: 0, g: 0, b: 0, a: 0 } }
+const defaultLineWidth = 4;
+
 lines_aa = {}
 
 app.use(morgan('dev'))
@@ -55,8 +57,8 @@ io.on('connection', function (socket) {
       b: (Math.random() * 254),
       a: 255
     },
-    s_id: socket.id
-
+    s_id: socket.id,
+    lineWidth : defaultLineWidth 
   })
   const initLoad = {
     s_id: socket.id,
@@ -64,7 +66,8 @@ io.on('connection', function (socket) {
     color: bear.color,
     width: gridWidth,
     height: gridHeight,
-    spacing: spacing
+    spacing: spacing,
+    lineWidth : defaultLineWidth
 
   }
   socket.emit('initialize', initLoad)
@@ -78,16 +81,17 @@ io.on('connection', function (socket) {
   })
   // when a line gets placed
   socket.on('placeline', function (line) {
+	  console.log(lines_aa);
     key = [line.x1, line.y1, line.x2, line.y2].join(',')
 
     // find the user
-    Bear.findById(line.m_id, 'color', { lean: true }, function (err, doc) {
+    Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
         // TODO: append lines to user's db document
         //	if (!lines_aa[lineString] || lines_aa[lineString] == clear.color) lines_aa[lineString] = doc.color;
         //	else lines_aa[lineString] = clear.color;
-        lines_aa[key] = doc.color
+        lines_aa[key] = { color : doc.color, lineWidth : doc.lineWidth } 
       }
     })
   })

@@ -8,7 +8,8 @@ var BearSchema = new Schema({
 		b:  Number,
 		a: Number 
 	},
-	s_id : String
+	s_id : String,
+	lineWidth : Number
 });
 //BearSchema.statics.findSocketId = function(socketId, cb) {
 //		return this.findOne({ id: socketId}, cb);
