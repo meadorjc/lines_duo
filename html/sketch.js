@@ -1,5 +1,5 @@
 let showLine = []
-let lineWidth = 6
+//let lineWidth = 6
 let diagonal = false
 let showGrid = true
 // const clear = { color: { r: 0, g: 0, b: 0, a: 0 } }
@@ -27,7 +27,8 @@ var initLoad = {
     a: 100
   },
   width: 0,
-  height: 0
+  height: 0,
+  lineWidth : 0
 }
 
 function setup () {
@@ -81,7 +82,7 @@ function draw () {
     // split the key into array
     key_coords = key.split(',')
 
-        	strokeWeight(lineWidth)
+        	strokeWeight(gridLines[key].lineWidth)
     stroke(gridLines[key].r, gridLines[key].g, gridLines[key].b, gridLines[key].a)
         	line(key_coords[0], key_coords[1], key_coords[2], key_coords[3])
   })
@@ -91,7 +92,7 @@ function draw () {
 
   // show preview line
   stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a)
-  strokeWeight(lineWidth)
+  strokeWeight(initLoad.lineWidth)
   fill(255, 0, 0)
 
   if (showGrid) grid.show()
@@ -137,12 +138,12 @@ function processKeys () {
 function findNodes () {
   if (mouseX >= initLoad.spacing && mouseX <= width - initLoad.spacing && mouseY >= initLoad.spacing && mouseY <= height - initLoad.spacing) {
     // Origin Node
-    d1x = (mouseX % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
-    d1y = (mouseY % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
+    d1x = (mouseX % initLoad.spacing) >= (initLoad.spacing / 4) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
+    d1y = (mouseY % initLoad.spacing) >= (initLoad.spacing / 4) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
 
     // Connecting Node
-    d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
-    d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
+    d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 4) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
+    d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 4) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
 
     // Decide connecting node direction
     if (diagonal === false) {
@@ -150,9 +151,9 @@ function findNodes () {
         d2x = d1x
       } else { d2y = d1y }
     }
-    // console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
+     //console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
     //	showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
-    showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id)
+    showLine = new Line(d1x, d1y, d2x, d2y, initLoad.lineWidth, initLoad.s_id, initLoad.m_id)
   }
 }
 
