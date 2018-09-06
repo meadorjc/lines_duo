@@ -1,6 +1,10 @@
 {
-	"name": "node-api",
-	"main": "server.js",
+	"name": "lines-io",
+	"main": "index.js",
+	"repository": {
+		"type": "git"
+		"url":	"https://github.com/meadorjc/lines_bg"
+	},
 	"dependencies": {
 		"body-parser": "~1.18.2",
 		"express": "~4.16.3",
