@@ -37,89 +37,51 @@ function setup () {
   grid = new Grid(initLoad.width, initLoad.height, initLoad.spacing, 1)
 
   cnv.mouseMoved(findNodes)
-  // cnv.mousePressed(placeLine);
-  // cnv.keyPressed(processKeys)
-
-  // stop drawing
-  buttonStop = createButton('stop')
-  buttonStop.position(10, 10)
-  buttonStop.mousePressed(function () {
-    if (loopState) {
-      noLoop()
-      buttonStop.html('start')
-    } else {
-      loop()
-      buttonStop.html('stop')
-    }
-    loopState = !loopState
-  })
-
-  // clear
-  buttonClear = createButton('clear')
-  buttonClear.position(50, 10)
-  buttonClear.mousePressed(function () {
-    socket.emit('clearlines')
-  })
-
-  // showGrid
-  buttonGrid = createButton('grid on')
-  buttonGrid.position(90, 10)
-  buttonGrid.mousePressed(function () {
-    if (showGrid) {
-      showGrid = false
-      buttonGrid.html('grid off')
-    } else {
-      showGrid = true
-      buttonGrid.html('grid on')
-    }
-  })
+  initButtons();
 }
 
 function draw () {
   background(200)
+  if (showGrid) grid.show()
 
   Object.keys(gridLines).forEach(function (key) {
     // split the key into array
-    key_coords = key.split(',')
+    key_coords = key.split(',');
+    strokeWeight(gridLines[key].lineWidth);
+    stroke(gridLines[key].color.r, gridLines[key].color.g, gridLines[key].color.b, gridLines[key].color.a);
+    line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
+  });
 
-        	strokeWeight(gridLines[key].lineWidth)
-    stroke(gridLines[key].r, gridLines[key].g, gridLines[key].b, gridLines[key].a)
-        	line(key_coords[0], key_coords[1], key_coords[2], key_coords[3])
-  })
-
-  text(key, 33, 65)
-  text(keyCode, 53, 65)
+  text(key, 33, 65);
+  text(keyCode, 53, 65);
 
   // show preview line
-  stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a)
-  strokeWeight(initLoad.lineWidth)
-  fill(255, 0, 0)
+  stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
+  strokeWeight(initLoad.lineWidth);
+  fill(255, 0, 0);
 
-  if (showGrid) grid.show()
 
   // alter preview line and send events for key codes
   // shift to clear
   if (keyIsDown(SHIFT)) {
     // change color of line
-    stroke(0, 0, 0, 255)
-        	strokeWeight(1)
+    stroke(0, 0, 0, 255);
+      strokeWeight(1);
   }
   // diagonal
   if (keyIsDown(CONTROL)) { diagonal = true } else { diagonal = false }
 
   if (keyIsDown(SHIFT) && keyIsDown(CONTROL) && mouseIsPressed) {
-    diagonal = true
+    diagonal = true;
     // clearLine();
-    socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','))
+    socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','));
   }
 
   // when placing lines
   if (keyIsDown(SHIFT) && mouseIsPressed) {
-    // console.log(showLine);
-    // clearLine();
-    socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','))
+    socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','));
   } else if (mouseIsPressed) {
-    socket.emit('placeline', showLine)
+    socket.emit('placeline', showLine);
   }
 
   // draw line
