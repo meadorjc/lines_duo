@@ -35,9 +35,14 @@ function initButtons(){
 
   //button for line color
   colorInput =	createInput('#ffffff', 'color')
-  colorInput.position(500, 10)
+  colorInput.position(150, 10)
   
   //button for bg color
   buttonBgColor = createInput('#434343', 'color')
-  buttonBgColor.position(600, 10)
+  buttonBgColor.position(200, 10)
+
+
+  lineWidthSlider = createSlider(0, 25, 4, 1);
+  lineWidthSlider.position(250, 10);
+  lineWidthSlider.style('width', '25px');
 }

@@ -102,7 +102,7 @@ io.on('connection', function (socket) {
     lines_aa = {}
   })
   socket.on('colorInput', function (input) {
-    Bear.findByIdAndUpdate( input.m_id, { color : input.color }, function (err, doc) {
+    Bear.findByIdAndUpdate( input.m_id, { color : input.color, lineWidth : input.lineWidth }, function (err, doc) {
       if (err) console.log(err)
       //console.log(doc)
     }) 
