@@ -11,9 +11,6 @@ var BearSchema = new Schema({
 	s_id : String,
 	lineWidth : Number
 });
-//BearSchema.statics.findSocketId = function(socketId, cb) {
-//		return this.findOne({ id: socketId}, cb);
-//	};
 
 module.exports = mongoose.model('Bear', BearSchema);
 

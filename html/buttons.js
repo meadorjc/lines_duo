@@ -32,4 +32,12 @@ function initButtons(){
       buttonGrid.html('grid on')
     }
   });
+
+  //button for line color
+  colorInput =	createInput('#ffffff', 'color')
+  colorInput.position(500, 10)
+  
+  //button for bg color
+  buttonBgColor = createInput('#434343', 'color')
+  buttonBgColor.position(600, 10)
 }
