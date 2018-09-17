@@ -81,9 +81,7 @@ io.on('connection', function (socket) {
   })
   // when a line gets placed
   socket.on('placeline', function (line) {
-	  console.log(lines_aa);
     key = [line.x1, line.y1, line.x2, line.y2].join(',')
-
     // find the user
     Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
@@ -97,11 +95,17 @@ io.on('connection', function (socket) {
   })
   // when client clears a line
   socket.on('clearline', function (key) {
-    lines_aa[key] = clear.color
+    lines_aa[key] = { color : clear.color, lineWidth : defaultLineWidth } 
   })
   // when client hits clear
   socket.on('clearlines', function () {
     lines_aa = {}
+  })
+  socket.on('colorInput', function (input) {
+    Bear.findByIdAndUpdate( input.m_id, { color : input.color }, function (err, doc) {
+      if (err) console.log(err)
+      //console.log(doc)
+    }) 
   })
   // when client is ready, start timer and begin sending existing lines
   socket.on('clientReady', function () {
@@ -138,12 +142,6 @@ function Grid (g_width, g_height, spacing, size) {
   this.height = g_height
   this.spacing = spacing
   this.size = size
-  //	for(i = this.spacing; i < this.width; i+=this.spacing){
-  //		heightNodes.append(i);
-  //	}
-  //	for(j = this.spacing; j < this.height; j+=this.spacing){
-  //		widthNodes.append(j)
-  //	}
   this.show = function () {
     fill(0)
     var count = 0

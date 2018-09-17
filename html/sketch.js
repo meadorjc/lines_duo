@@ -2,6 +2,8 @@ let showLine = []
 //let lineWidth = 6
 let diagonal = false
 let showGrid = true
+let colorInput
+let hexToRgbValue = [255, 255, 255];
 // const clear = { color: { r: 0, g: 0, b: 0, a: 0 } }
 
 var grid
@@ -38,9 +40,23 @@ function setup () {
 
   cnv.mouseMoved(findNodes)
   initButtons();
+
+  colorInput =	createInput('#ffffff', 'color');
+  colorInput.position(500, 10);
+  colorInput.mousePressed(function () {
+    //console.log(colorInput.value())
+   // socket.emit('clearlines')
+  });
+  cnv.elt.onmouseover = function () {
+	hexToRgbValue = hexToRgb(colorInput.value())
+	  //console.log(hexToRgbValue)
+	socket.emit('colorInput', { m_id: initLoad.m_id, color : { r : hexToRgbValue[0], g : hexToRgbValue[1], b : hexToRgbValue[2], a : 255}})
+  }
 }
 
 function draw () {
+  //console.log(hexToRgb(colorInput.value())) // [0, 51, 255]
+  //console.log(colorInput.value())
   background(200)
   if (showGrid) grid.show()
 
@@ -56,7 +72,9 @@ function draw () {
   text(keyCode, 53, 65);
 
   // show preview line
-  stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
+  //stroke(initLoad.color.r, initLoad.color.g, initLoad.color.b, initLoad.color.a);
+  //console.log(colorInput.value());
+  stroke(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], initLoad.color.a);
   strokeWeight(initLoad.lineWidth);
   fill(255, 0, 0);
 
