@@ -3,7 +3,6 @@
 	"main": "index.js",
 	"repository": {
 		"type": "git"
-		"url":	"https://github.com/meadorjc/lines_bg"
 	},
 	"dependencies": {
 		"body-parser": "~1.18.2",
