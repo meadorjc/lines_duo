@@ -104,8 +104,9 @@ function draw () {
     socket.emit('placeline', showLine);
   }
 
-  // draw line
-  line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
+  // draw line if showLine is not null
+  if(showLine.x1 && showLine.y1 && showLine.x2 && showLine.y2) 
+    line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
 }
 
 function mousePressed () {
