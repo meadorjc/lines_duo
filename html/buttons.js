@@ -42,7 +42,7 @@ function initButtons(){
   buttonBgColor.position(200, 10)
 
 
-  lineWidthSlider = createSlider(0, 25, 4, 1);
+  lineWidthSlider = createSlider(1, 25, 4, 1);
   lineWidthSlider.position(250, 10);
   lineWidthSlider.style('width', '25px');
 }
