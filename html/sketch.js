@@ -18,8 +18,9 @@ var initLoad = {
     b: 0,
     a: 100
   },
-  width: 0,
-  height: 0,
+  width: 1000,
+  height: 1000,
+  spacing: 50,
   lineWidth : 0
 }
 
