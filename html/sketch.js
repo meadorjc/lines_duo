@@ -21,7 +21,7 @@ var initLoad = {
   width: 1000,
   height: 1000,
   spacing: 50,
-  lineWidth : 0
+  lineWidth : 1
 }
 
 function setup () {
@@ -31,6 +31,13 @@ function setup () {
 
   cnv.mouseMoved(findNodes)
   initButtons();
+
+  cnv.elt.onmouseleave = function () {
+    showLine.x1 = null
+    showLine.y1 = null
+    showLine.x2 = null
+    showLine.x2 = null
+  }
 
   //convert color and send to server
   cnv.elt.onmouseover = function () {
@@ -44,6 +51,7 @@ function draw () {
   background(bgColor)
   if (showGrid) grid.show()
 
+  //draw existing lines 
   Object.keys(gridLines).forEach(function (key) {
     // split the key into array
     key_coords = key.split(',');
@@ -69,9 +77,7 @@ function draw () {
     stroke(0, 0, 0, 255);
     strokeWeight(0);
     textFont('Courier New', 120)
-    //textSize(100);
     fill(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], 150);
-    //fill(0, 102, 153, 150);  
     text('clear', 120, 220);
     strokeWeight(1);
    
@@ -82,9 +88,7 @@ function draw () {
 
     strokeWeight(0);
     textFont('Courier New', 120)
-    //textSize(100);
     fill(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], 150);
-    //fill(0, 102, 153, 150);  
     text('diagonal', 120, 320);
     strokeWeight(1);
   } else { 
@@ -94,7 +98,6 @@ function draw () {
   //clear diagonal line
   if (keyIsDown(SHIFT) && keyIsDown(CONTROL) && mouseIsPressed) {
     diagonal = true;
-    // clearLine();
     socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','));
   }
 

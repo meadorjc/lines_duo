@@ -15,7 +15,6 @@
 		var socket = io(); 
 		let gridLines = {};
 		socket.on('initialize', function (response) {
-			console.log('connect');
 				initLoad = {
 					//name: response.name, 
 					s_id : response.s_id,
@@ -31,7 +30,6 @@
 					lineWidth: response.lineWidth
 			};
 		socket.emit('clientReady', {});
-		console.log("initLoad", initLoad);
 		});
 		socket.on('lines_aa', function(lines){
 				gridLines = lines;
