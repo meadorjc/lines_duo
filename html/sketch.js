@@ -82,29 +82,11 @@ function draw () {
     strokeWeight(1);
    
   }
-  // diagonal
-  if (keyIsDown(CONTROL)) { 
-    diagonal = true 
-
-    strokeWeight(0);
-    textFont('Courier New', 120)
-    fill(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], 150);
-    text('diagonal', 120, 320);
-    strokeWeight(1);
-  } else { 
-      diagonal = false 
-  }
-
-  //clear diagonal line
-  if (keyIsDown(SHIFT) && keyIsDown(CONTROL) && mouseIsPressed) {
-    diagonal = true;
-    socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','));
-  }
-
   // when placing lines
   if (keyIsDown(SHIFT) && mouseIsPressed) {
     socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','));
   } else if (mouseIsPressed) {
+    console.log("mousePressed", showLine);
     socket.emit('placeline', showLine);
   }
 
@@ -123,23 +105,25 @@ function processKeys () {
 
 }
 function findNodes () {
+  //if mouse pointer is within bounds
   if (mouseX >= initLoad.spacing && mouseX <= width - initLoad.spacing && mouseY >= initLoad.spacing && mouseY <= height - initLoad.spacing) {
     // Origin Node
-    d1x = (mouseX % initLoad.spacing) >= (initLoad.spacing / 4) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
-    d1y = (mouseY % initLoad.spacing) >= (initLoad.spacing / 4) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
+    d1x = (mouseX % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
+    d1y = (mouseY % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
 
     // Connecting Node
-    d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 4) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
-    d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 4) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
+    d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
+    d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
 
     // Decide connecting node direction
-    if (diagonal === false) {
-      if ((mouseX - d1x) > (mouseY - d1y)) {
-        d2x = d1x
-      } else { d2y = d1y }
-    }
-     //console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
-    //	showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
+    console.log((mouseY-d1y),(mouseX-d1x), (mouseY-d1y)/(mouseX-d1x))
+
+    //makes line straight if below/above threshold of spacing/4 
+    if (abs((mouseX - d1x)) < (initLoad.spacing/4)) { d2x = d1x }
+    if (abs((mouseY - d1y)) < (initLoad.spacing/4)) { d2y = d1y }
+	  
+    //console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
+    //showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
     showLine = new Line(d1x, d1y, d2x, d2y, lineWidthSlider.value(), initLoad.s_id, initLoad.m_id)
   }
 }
