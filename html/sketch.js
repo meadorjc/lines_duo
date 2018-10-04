@@ -112,16 +112,51 @@ function findNodes () {
     d1y = (mouseY % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
 
     // Connecting Node
-    d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
-    d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
+    //d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
+    //d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
 
+    ////makes line straight if below/above threshold of spacing/4 
+    //if (abs((mouseX - d1x)) < (initLoad.spacing/4)) { d2x = d1x }
+    //if (abs((mouseY - d1y)) < (initLoad.spacing/4)) { d2y = d1y }
+	  
     // Decide connecting node direction
     console.log((mouseY-d1y),(mouseX-d1x), (mouseY-d1y)/(mouseX-d1x))
+    console.log((Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI))
 
-    //makes line straight if below/above threshold of spacing/4 
-    if (abs((mouseX - d1x)) < (initLoad.spacing/4)) { d2x = d1x }
-    if (abs((mouseY - d1y)) < (initLoad.spacing/4)) { d2y = d1y }
-	  
+    deg = Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI
+    
+    if ( deg > -22.5 && deg <= 22.5 ){
+      d2x = Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing
+      d2y = d1y 
+    }
+    if ( deg > 22.5 && deg <= 67.5  ){
+      d2x = Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing
+      d2y = Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing
+    }
+    if ( deg > 67.5 && deg <= 112.5  ){
+      d2x = d1x 
+      d2y = Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing
+    }
+    if ( deg > 112.5 && deg <= 157.5  ){
+      d2x = Math.floor(mouseX / initLoad.spacing) * initLoad.spacing
+      d2y = Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing
+    }
+    if ( (deg > 157.5 && deg <= 180) || (deg < -157.5 && deg >= -180)  ){
+      d2x = Math.floor(mouseX / initLoad.spacing) * initLoad.spacing
+      d2y = d1y 
+    }
+    if ( deg < -112.5 && deg >= -157.5  ){
+      d2x = Math.floor(mouseX / initLoad.spacing) * initLoad.spacing
+      d2y = Math.floor(mouseY / initLoad.spacing) * initLoad.spacing
+    }
+    if ( deg < -67.5 && deg >= -112.5  ){
+      d2x = d1x 
+      d2y = Math.floor(mouseY / initLoad.spacing) * initLoad.spacing
+    }
+    if ( deg < -22.5 && deg >= -67.5  ){
+      d2x = Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing
+      d2y = Math.floor(mouseY / initLoad.spacing) * initLoad.spacing
+    }
     //console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
     //showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
     showLine = new Line(d1x, d1y, d2x, d2y, lineWidthSlider.value(), initLoad.s_id, initLoad.m_id)
