@@ -89,10 +89,6 @@ io.on('connection', function (socket) {
   socket.on('clearline', function (key) {
     lines_aa[key] = { color : clear.color, lineWidth : defaultLineWidth } 
   })
-  // when client hits clear
-  socket.on('clearlines', function () {
-    lines_aa = {}
-  })
   socket.on('colorInput', function (input) {
     Bear.findByIdAndUpdate( input.m_id, { color : input.color, lineWidth : input.lineWidth }, function (err, doc) {
       if (err) console.log(err)

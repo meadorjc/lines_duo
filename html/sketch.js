@@ -73,22 +73,7 @@ function draw () {
   fill(255, 0, 0);
 
 
-  // alter preview line and send events for key codes
-  // shift to clear
-  if (keyIsDown(SHIFT)) {
-    // change color of line
-    stroke(0, 0, 0, 255);
-    strokeWeight(0);
-    textFont('Courier New', 120)
-    fill(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], 150);
-    text('clear', 120, 220);
-    strokeWeight(1);
-   
-  }
-  // when placing lines
-  if (keyIsDown(SHIFT) && mouseIsPressed) {
-    socket.emit('clearline', [showLine.x1, showLine.y1, showLine.x2, showLine.y2].join(','));
-  } else if (mouseIsPressed) {
+  if (mouseIsPressed) {
     console.log("mousePressed", showLine);
     socket.emit('placeline', showLine);
   }
