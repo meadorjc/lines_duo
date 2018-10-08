@@ -5,6 +5,7 @@ var path = require('path')
 var express = require('express')
 var app = require('express')()
 var http = require('http').Server(app)
+var bodyParser = require('body-parser')
 var io = require('socket.io')(http)
 
 const morgan = require('morgan')
@@ -27,6 +28,8 @@ lines_aa = {}
 
 app.use(morgan('dev'))
 app.use(express.static(htmlPath))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
 // database
 mongoose.connect('mongodb://localhost/lines')
@@ -35,18 +38,20 @@ mongoose.connect('mongodb://localhost/lines')
 db.on('error', console.error.bind(console, 'connection error:'))
 
 // create router
-// const router = express.Router();
-//
-// router.use(function(req, res, next) {
-//	console.log('request: ' );
-//	res.header("Access-Control-Allow-Origin", "*");
-//	res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//	next();
-// });
-
-app.get('/', function (req, res) {
+const router = express.Router();
+router.use(function(req, res, next) {
+       console.log('request: ' );
+       res.header("Access-Control-Allow-Origin", "*");
+       res.header("Access-Control-Allow-Headers", "X-Requested-With");
+       next();
+});
+router.get('/', function(req, res) {
   res.sendFile(__dirname + '/html/index.html')
 })
+
+app.use('/api', router);
+
+
 
 // start the socket connection and define listeners
 io.on('connection', function (socket) {
@@ -76,9 +81,11 @@ io.on('connection', function (socket) {
     if (err) res.send('error: ' + err)
     console.log('save.')
   })
+
   socket.on('disconnect', function () {
     console.log('user disconnected')
   })
+
   // when a line gets placed
   socket.on('placeline', function (line) {
     key = [line.x1, line.y1, line.x2, line.y2].join(',')

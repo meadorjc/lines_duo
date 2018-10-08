@@ -6,7 +6,6 @@ let bgColor = '#434343'
 let hexToRgbValue = [255, 255, 255];
 
 var grid
-var loopState = true
 var nodes = []
 var nodes_aa = {}
 var cnv
@@ -27,6 +26,7 @@ var initLoad = {
 function setup () {
   frameRate(30)
   cnv = createCanvas(initLoad.width, initLoad.height)
+  centerCanvas();
   grid = new Grid(initLoad.width, initLoad.height, initLoad.spacing, 1)
 
   cnv.mouseMoved(findNodes)
@@ -37,6 +37,7 @@ function setup () {
     showLine.y1 = null
     showLine.x2 = null
     showLine.x2 = null
+    noLoop()
   }
 
   //convert color and send to server
@@ -44,6 +45,7 @@ function setup () {
     hexToRgbValue = hexToRgb(colorInput.value())
     bgColor = buttonBgColor.value()
     socket.emit('colorInput', { m_id: initLoad.m_id, color : { r : hexToRgbValue[0], g : hexToRgbValue[1], b : hexToRgbValue[2], a : 255}, lineWidth : lineWidthSlider.value() })
+    loop()
   }
 }
 
@@ -59,6 +61,9 @@ function draw () {
     stroke(gridLines[key].color.r, gridLines[key].color.g, gridLines[key].color.b, gridLines[key].color.a);
     line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
   });
+
+  textSize(15);
+  text(lineWidthSlider.value(), 360, 20);
 
   textSize(10);
   text(key, 33, 65);
@@ -120,8 +125,8 @@ function findNodes () {
     //if (abs((mouseY - d1y)) < (initLoad.spacing/4)) { d2y = d1y }
 	  
     // Decide connecting node direction
-    console.log((mouseY-d1y),(mouseX-d1x), (mouseY-d1y)/(mouseX-d1x))
-    console.log((Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI))
+    //console.log((mouseY-d1y),(mouseX-d1x), (mouseY-d1y)/(mouseX-d1x))
+   // console.log((Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI))
 
     deg = Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI
     
@@ -167,5 +172,13 @@ function placeLine () {
   // socket.emit('placeline', showLine);
 }
 
+function centerCanvas() {
+  var x = (windowWidth - width) / 2;
+  var y = (windowHeight - height) / 2;
+  cnv.position(x, y);
+}
+function windowResized() {
+  centerCanvas();
+}
 function clearLine () {
 }

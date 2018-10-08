@@ -1,17 +1,4 @@
 function initButtons(){
-  // stop drawing
-  buttonStop = createButton('stop');
-  buttonStop.position(10, 10);
-  buttonStop.mousePressed(function () {
-    if (loopState) {
-      noLoop();
-      buttonStop.html('start');
-    } else {
-      loop();
-      buttonStop.html('stop');
-    }
-    loopState = !loopState;
-  });
 
   // clear
   buttonClear = createButton('clear');
@@ -45,5 +32,5 @@ function initButtons(){
   //createSlider(min, max, default, step);
   lineWidthSlider = createSlider(1, 25, 4, 1);
   lineWidthSlider.position(250, 10);
-  lineWidthSlider.style('width', '25px');
+  lineWidthSlider.style('width', '100px');
 }
