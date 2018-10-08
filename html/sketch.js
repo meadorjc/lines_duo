@@ -44,7 +44,7 @@ function setup () {
   cnv.elt.onmouseover = function () {
     hexToRgbValue = hexToRgb(colorInput.value())
     bgColor = buttonBgColor.value()
-    socket.emit('colorInput', { m_id: initLoad.m_id, color : { r : hexToRgbValue[0], g : hexToRgbValue[1], b : hexToRgbValue[2], a : 255}, lineWidth : lineWidthSlider.value() })
+    socket.emit('colorInput', { m_id: initLoad.m_id, color : { r : hexToRgbValue[0], g : hexToRgbValue[1], b : hexToRgbValue[2], a : 255}, lineWidth : initLoad.lineWidth })
     loop()
   }
 }
@@ -62,8 +62,6 @@ function draw () {
     line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
   });
 
-  textSize(15);
-  text(lineWidthSlider.value(), 360, 20);
 
   textSize(10);
   text(key, 33, 65);
@@ -71,7 +69,7 @@ function draw () {
 
   // show preview line
   stroke(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], initLoad.color.a);
-  strokeWeight(lineWidthSlider.value())
+  strokeWeight(initLoad.lineWidth)
   fill(255, 0, 0);
 
 
@@ -164,7 +162,7 @@ function findNodes () {
     }
     //console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
     //showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
-    showLine = new Line(d1x, d1y, d2x, d2y, lineWidthSlider.value(), initLoad.s_id, initLoad.m_id)
+    showLine = new Line(d1x, d1y, d2x, d2y, initLoad.lineWidth, initLoad.s_id, initLoad.m_id)
   }
 }
 

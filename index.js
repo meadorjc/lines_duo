@@ -28,8 +28,6 @@ lines_aa = {}
 
 app.use(morgan('dev'))
 app.use(express.static(htmlPath))
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
 
 // database
 mongoose.connect('mongodb://localhost/lines')
@@ -37,19 +35,6 @@ mongoose.connect('mongodb://localhost/lines')
 // handle connection event
 db.on('error', console.error.bind(console, 'connection error:'))
 
-// create router
-const router = express.Router();
-router.use(function(req, res, next) {
-       console.log('request: ' );
-       res.header("Access-Control-Allow-Origin", "*");
-       res.header("Access-Control-Allow-Headers", "X-Requested-With");
-       next();
-});
-router.get('/', function(req, res) {
-  res.sendFile(__dirname + '/html/index.html')
-})
-
-app.use('/api', router);
 
 
 

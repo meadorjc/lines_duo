@@ -1,24 +1,6 @@
 function initButtons(){
 
-  // clear
-  buttonClear = createButton('clear');
-  buttonClear.position(50, 10);
-  buttonClear.mousePressed(function () {
-    socket.emit('clearlines')
-  });
 
-  // showGrid
-  buttonGrid = createButton('grid on');
-  buttonGrid.position(90, 10);
-  buttonGrid.mousePressed(function () {
-    if (showGrid) {
-      showGrid = false
-      buttonGrid.html('grid off')
-    } else {
-      showGrid = true
-      buttonGrid.html('grid on')
-    }
-  });
 
   //button for line color
   colorInput =	createInput('#ffffff', 'color')
@@ -29,8 +11,4 @@ function initButtons(){
   buttonBgColor.position(200, 10)
 
 
-  //createSlider(min, max, default, step);
-  lineWidthSlider = createSlider(1, 25, 4, 1);
-  lineWidthSlider.position(250, 10);
-  lineWidthSlider.style('width', '100px');
 }
