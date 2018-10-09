@@ -74,7 +74,10 @@ io.on('connection', function (socket) {
   // when a line gets placed
   socket.on('placeline', function (line) {
     key = [line.x1, line.y1, line.x2, line.y2].join(',')
+    key2 = [line.x2, line.y2, line.x1, line.y1].join(',') 
     // find the user
+    console.log(line, ( line.y2 - line.y1 ) / ( line.x2 - line.x1 ))
+    findClosed ( line )
     Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
@@ -82,12 +85,9 @@ io.on('connection', function (socket) {
         //	if (!lines_aa[lineString] || lines_aa[lineString] == clear.color) lines_aa[lineString] = doc.color;
         //	else lines_aa[lineString] = clear.color;
         lines_aa[key] = { color : doc.color, lineWidth : doc.lineWidth } 
+        lines_aa[key2] = { color : doc.color, lineWidth : doc.lineWidth } 
       }
     })
-  })
-  // when client clears a line
-  socket.on('clearline', function (key) {
-    lines_aa[key] = { color : clear.color, lineWidth : defaultLineWidth } 
   })
   socket.on('colorInput', function (input) {
     Bear.findByIdAndUpdate( input.m_id, { color : input.color, lineWidth : input.lineWidth }, function (err, doc) {
@@ -108,6 +108,66 @@ http.listen(port, function () {
   console.log('listening on *:8080')
 })
 
+function findClosed (line) {
+  slope = ( line.y2 - line.y1 ) / ( line.x2 - line.x1 )
+  //line slope is -1, "backslash"
+  if ( slope === -1 ){ 
+    if( ( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
+      &&( findLine (line, spacing, 0, 0, 0) || findLine (line, 0, 0, spacing, 0))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.max(line.x1, line.x2), Math.max(line.y1, line.y2)]  
+        console.log("slope -1 x+y+ connected")
+	    console.log(triangle)
+    }
+    else if(( findLine (line, 0, -spacing, 0, 0) || findLine (line, 0, 0, 0, -spacing))
+      &&( findLine (line, -spacing, 0, 0, 0) || findLine (line, 0, 0, -spacing, 0))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.min(line.x1, line.x2), Math.min(line.y1, line.y2)]  
+        console.log("slope -1 x-y- connected")
+	    console.log(triangle)
+    }
+  } 
+  //line slope is 1, "forwardslash"
+  if ( slope === 1 ){ 
+    if( ( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
+      &&( findLine (line, -spacing, 0, 0, 0) || findLine (line, 0, 0, -spacing, 0))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.min(line.x1, line.x2), Math.max(line.y1, line.y2)]  
+        console.log("slope 1 x-y+ connected")
+	    console.log(triangle)
+    }
+    else if(( findLine (line, 0, -spacing, 0, 0) || findLine (line, 0, 0, 0, -spacing))
+      &&( findLine (line, spacing, 0, 0, 0) || findLine (line, 0, 0, spacing, 0))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.max(line.x1, line.x2), Math.min(line.y1, line.y2)]  
+        console.log("slope 1 x-y- connected")
+	    console.log(triangle)
+    }
+  }
+  //line slope is 0, horizontal line 
+  if ( slope === -0 || slope === 0){ 
+    if( ( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
+      &&( findLine (line, -spacing, 0, 0, 0) || findLine (line, 0, 0, -spacing, 0))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.min(line.x1, line.x2), Math.max(line.y1, line.y2)]  
+        console.log("slope 1 x-y+ connected")
+	    console.log(triangle)
+    }
+    else if(( findLine (line, 0, -spacing, 0, 0) || findLine (line, 0, 0, 0, -spacing))
+      &&( findLine (line, spacing, 0, 0, 0) || findLine (line, 0, 0, spacing, 0))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.max(line.x1, line.x2), Math.min(line.y1, line.y2)]  
+        console.log("slope 1 x-y- connected")
+	    console.log(triangle)
+    }
+  }
+  if ( slope === Infinity || slope === -Infinity){}
+
+}
+function findLine ( line, x1a, y1a, x2a, y2a ){
+  return lines_aa[[(line.x1 + x1a), (line.y1 + y1a), (line.x2 + x2a), (line.y2 + y2a)].join(',')]  
+}
+function mutateLine (line, xSpacing, ySpacing) {
+  return { yLine1 : [line.x1, (line.y1 + ySpacing), line.x2, line.y2].join(',') , 
+	   yLine2 : [line.x1, line.y1, line.x2, (line.y2 + ySpacing)].join(',') , 
+           xLine1 : [(line.x1 + xSpacing), line.y1, line.x2, line.y2].join(',') ,
+	   xLine2 : [line.x1, line.y1, (line.x2 + xSpacing), line.y2].join(',')
+  }
+}
 function validate (line) {
   return validateNode(line.x1, line.y1) &&
 		validateNode(line.x2, line.y2) &&
