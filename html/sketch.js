@@ -62,6 +62,13 @@ function draw () {
     line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
   });
 
+  if(tri_aa != null) {
+	console.log(typeof(tri_aa), tri_aa) 
+	tri_aa.forEach(function (tri) {
+		console.log(tri[0][0], tri[0][1], tri[2], tri[3], tri[4], tri[5])
+	  triangle(tri[0][0], tri[0][1], tri[0][2], tri[0][3], tri[0][4], tri[0][5]) 
+  	});
+  }  
 
   textSize(10);
   text(key, 33, 65);

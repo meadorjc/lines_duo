@@ -25,6 +25,7 @@ const clear = { color: { r: 0, g: 0, b: 0, a: 0 } }
 const defaultLineWidth = 4;
 
 lines_aa = {}
+tri_aa = [] 
 
 app.use(morgan('dev'))
 app.use(express.static(htmlPath))
@@ -75,9 +76,12 @@ io.on('connection', function (socket) {
   socket.on('placeline', function (line) {
     key = [line.x1, line.y1, line.x2, line.y2].join(',')
     key2 = [line.x2, line.y2, line.x1, line.y1].join(',') 
+    triangle = findClosed(line)
+    if (triangle != null) {
+	    tri_aa.push(new Array(triangle))
+    }
     // find the user
     console.log(line, ( line.y2 - line.y1 ) / ( line.x2 - line.x1 ))
-    findClosed ( line )
     Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
@@ -99,6 +103,7 @@ io.on('connection', function (socket) {
   socket.on('clientReady', function () {
     var timer = setInterval(function () {
       socket.emit('lines_aa', lines_aa)
+      socket.emit('tri_aa', tri_aa)
     }, 100)
   })
 })
@@ -110,6 +115,7 @@ http.listen(port, function () {
 
 function findClosed (line) {
   slope = ( line.y2 - line.y1 ) / ( line.x2 - line.x1 )
+  triangle = null
   //line slope is -1, "backslash"
   if ( slope === -1 ){ 
     if( ( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
@@ -142,21 +148,33 @@ function findClosed (line) {
   }
   //line slope is 0, horizontal line 
   if ( slope === -0 || slope === 0){ 
-    if( ( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
-      &&( findLine (line, -spacing, 0, 0, 0) || findLine (line, 0, 0, -spacing, 0))){
-        triangle = [line.x1, line.y1, line.x2, line.y2, Math.min(line.x1, line.x2), Math.max(line.y1, line.y2)]  
-        console.log("slope 1 x-y+ connected")
+    if( ( findLine (line, 0, -spacing, 0, 0) || findLine (line, 0, 0, 0, -spacing))
+      &&( findLine (line, spacing, -spacing, 0, 0) || findLine (line, 0, 0, spacing, -spacing))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.min(line.y1, line.y2)-spacing, Math.min(line.y1, line.y2)-spacing]  
+        console.log("slope 0 x-y+ connected")
 	    console.log(triangle)
     }
-    else if(( findLine (line, 0, -spacing, 0, 0) || findLine (line, 0, 0, 0, -spacing))
-      &&( findLine (line, spacing, 0, 0, 0) || findLine (line, 0, 0, spacing, 0))){
-        triangle = [line.x1, line.y1, line.x2, line.y2, Math.max(line.x1, line.x2), Math.min(line.y1, line.y2)]  
-        console.log("slope 1 x-y- connected")
+    else if(( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
+      &&( findLine (line, spacing, spacing, 0, 0) || findLine (line, 0, 0, spacing, spacing))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.max(line.x1, line.x2), Math.max(line.y1, line.y2)+spacing]  
+        console.log("slope 0 x-y- connected")
 	    console.log(triangle)
     }
   }
   if ( slope === Infinity || slope === -Infinity){}
-
+    if( ( findLine (line, -spacing, 0, 0, 0) || findLine (line, 0, 0, -spacing, 0))
+      &&( findLine (line, -spacing, spacing, 0, 0) || findLine (line, 0, 0, -spacing, spacing))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.min(line.y1, line.y2)-spacing, Math.min(line.y1, line.y2)-spacing]  
+        console.log("slope Inf x-y- connected")
+	    console.log(triangle)
+    }
+    else if(( findLine (line, 0, spacing, 0, 0) || findLine (line, 0, 0, 0, spacing))
+      &&( findLine (line, spacing, spacing, 0, 0) || findLine (line, 0, 0, spacing, spacing))){
+        triangle = [line.x1, line.y1, line.x2, line.y2, Math.max(line.x1, line.x2), Math.max(line.y1, line.y2)+spacing]  
+        console.log("slope 0 x-y- connected")
+	    console.log(triangle)
+    }
+  return triangle
 }
 function findLine ( line, x1a, y1a, x2a, y2a ){
   return lines_aa[[(line.x1 + x1a), (line.y1 + y1a), (line.x2 + x2a), (line.y2 + y2a)].join(',')]  
