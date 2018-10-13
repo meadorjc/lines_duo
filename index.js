@@ -129,53 +129,108 @@ function flatten(arr) {
     return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
   }, []);
 }
+
+//function findClosed (line){
+//
+//  testLines = []
+//  triangles = [] 
+//  lineNodes = [[line.x1, line.y1],[line.x2, line.y2]]
+//  lineNodes.forEach(function (node) {
+//		console.log("here")
+//    Object.keys(lines_aa).forEach(function (key) {
+//    if ([line.x1,line.y1,line.x2,line.y2].join(',') != key){
+//        key_coords = key.split(',');
+//        if( (node[0] === parseInt(key_coords[0]) && node[1] === parseInt(key_coords[1])) || (node[0] === parseInt(key_coords[2]) && node[1] ===  parseInt(key_coords[3]))){
+//		console.log(key_coords)
+//          testLines.push(key_coords)      
+//        }
+//      }
+//    });
+//  })
+//
+//
+//}
+
+
+
 function findClosed (line) {
-	//console.log(line)
   testLines = []
   triangles = [] 
+  lineKey = [line.x1,line.y1,line.x2,line.y2].join(',') 
   lineNodes = [[line.x1, line.y1],[line.x2, line.y2]]
+  lineSlope = (line.y2-line.y1)/(line.x2 - line.x1)
+	console.log("lineNodes", lineNodes)
   lineNodes.forEach(function (node) {
-  	Object.keys(lines_aa).forEach(function (key) {
-	  if ([line.x1,line.y1,line.x2,line.y2].join(',') != key){
-  	    key_coords = key.split(',');
-  	    if( [node[0], node[1]].join(',') == [key_coords[0], key_coords[1]].join(',') || [node[0],node[1]].join(',') == [key_coords[2], key_coords[3]].join(',')){
-		testLines.push(key_coords)	    
-	    }
-	  }
-  	});
+		console.log("here")
+    Object.keys(lines_aa).forEach(function (key) {
+    if (lineKey != key){
+        key_coords = key.split(',');
+        keyNodes = [[parseInt(key_coords[0]), parseInt(key_coords[1])],[parseInt(key_coords[2]),parseInt(key_coords[3])]]
+        if( (node[0] === keyNodes[0][0] && node[1] === keyNodes[0][1])){// || (node[0] === keyNodes[1][0] && node[1] === keyNodes[1][1])){ 
+		console.log("testline", keyNodes)
+          testLines.push(keyNodes)      
+        }
+      }
+    });
   })
-	//console.log(testLines)
-  testLines.forEach(function(testLine1){
-   testLines.forEach(function(testLine2){
-    if (testLine1 != testLine2){
-	    lineLen = Math.sqrt(Math.pow(line.x2-line.x1, 2) + Math.pow(line.y2-line.y1, 2))
-	    testLineLen1 = Math.sqrt(Math.pow(testLine1[2]-testLine1[0], 2) + Math.pow(testLine1[3]-testLine1[1], 2))
-	    testLineLen2 = Math.sqrt(Math.pow(testLine2[2]-testLine2[0], 2) + Math.pow(testLine2[3]-testLine2[1], 2))
-		//console.log(lineLen, testLineLen1, testLineLen2)
-	    if ((lineLen + testLineLen1 > testLineLen2) && (lineLen + testLineLen2 > testLineLen1) && (testLineLen1 + testLineLen2 > lineLen)){
-		    lineNodes.push([parseInt(testLine1[0]), parseInt(testLine1[1])], [parseInt(testLine1[2]), parseInt(testLine1[3])],[parseInt(testLine2[0]), parseInt(testLine2[1])], [parseInt(testLine2[2]), parseInt(testLine2[3])])
-		    //console.log(flatten(lineNodes))
-		    lineNodesSet = setOfNodes(lineNodes)
-		    triangles.push(flatten(lineNodesSet))
-		 //   console.log(flatten(lineNodesSet))
-	    }
-    }
-   })
-  })
+	console.log(testLines.length)
+  if (testLines.length > 1) { 
+    testLines.forEach(function(testLine1){
+    testLineSlope1 = (testLine1[1][1]-testLine1[0][1])/(testLine1[1][0]-testLine1[0][0])
+     testLines.forEach(function(testLine2){
+
+    testLineSlope2 = (testLine2[1][1]-testLine2[0][1])/(testLine2[1][0]-testLine2[0][0])
+
+      if (lineKey != testLine1 && testLine1 != testLine2 && lineSlope != testLineSlope1 && testLineSlope1 != testLineSlope2){
+	  console.log("lineNodes", lineNodes, "testLine1", testLine1, "testLine2", testLine2)    
+	     
+        if( (containsNode(lineNodes, testLine1[0]) || containsNode(lineNodes, testLine1[1]))
+	     && (containsNode(lineNodes, testLine2[0]) || containsNode(lineNodes, testLine2[1]))){
+	    //&& (containsNode(testLine1, testLine2[0]) || containsNode(testLine1, testLine2[1]))
+	    //&& (containsNode(testLine2, lineNodes[0]) || containsNode(testLine2, lineNodes[1]))){
+            triangleNodesSet = setOfNodes([lineNodes[0], lineNodes[1], testLine1[0], testLine1[1], testLine2[0], testLine2[1]] )
+	     triangles.push(flatten(triangleNodesSet))
+		console.log("triangles.push", flatten(triangleNodesSet))
+	     }
+	     
+        //lineLen = Math.sqrt(Math.pow(line.x2-line.x1, 2) + Math.pow(line.y2-line.y1, 2))
+        //testLineLen1 = Math.sqrt(Math.pow(testLine1[2]-testLine1[0], 2) + Math.pow(testLine1[3]-testLine1[1], 2))
+        //testLineLen2 = Math.sqrt(Math.pow(testLine2[2]-testLine2[0], 2) + Math.pow(testLine2[3]-testLine2[1], 2))
+        //if ((lineLen + testLineLen1 > testLineLen2) && (lineLen + testLineLen2 > testLineLen1) && (testLineLen1 + testLineLen2 > lineLen)){
+        //  lineNodes.push([parseInt(testLine1[0]), parseInt(testLine1[1])], [parseInt(testLine1[2]), parseInt(testLine1[3])],[parseInt(testLine2[0]), parseInt(testLine2[1])], [parseInt(testLine2[2]), parseInt(testLine2[3])])
+        //  lineNodesSet = setOfNodes(lineNodes)
+        //  triangles.push(flatten(lineNodesSet))
+        //        console.log(lineNodesSet)
+        //}
+      }
+     })
+    })
+  }
   return triangles
 }
-function setOfNodes(nodeArray){
-  for(i = 0; i < nodeArray.length; i++){
-	for(j = i+1; j < nodeArray.length; j++){
-		//console.log( "i", i, "j", j, "nodeArray", nodeArray)
-		if (nodeArray[i][0] === nodeArray[j][0] && nodeArray[i][1] === nodeArray[j][1]){
-			 nodeArray.splice(j, 1)
-			j--
-		}
-	}
-  }
- return nodeArray
+function containsNode(arr, node){
+  test = false
+  arr.forEach(function(n){
+    if (n[0] === node[0] && n[1] === node[1]) { test = true; } 
 
+  })
+  console.log("contains", arr, node, test )
+  return test 
+}
+function setOfNodes(nodeArray){
+	console.log("nodeArrayLength", nodeArray.length)
+	console.log("nodeArrayBefore", nodeArray)
+  for(i = 0; i < nodeArray.length; i++){
+    for(j = i+1; j < nodeArray.length; j++){
+      //console.log( "i", i, "j", j, "nodeArray", nodeArray)
+      if (nodeArray[i][0] === nodeArray[j][0] && nodeArray[i][1] === nodeArray[j][1]){
+         nodeArray.splice(j, 1)
+        j--
+      }
+    }
+  }
+	console.log("nodeArrayAfter", nodeArray)
+ return nodeArray
 }
 //function findClosed (line) {
 //  slope = ( line.y2 - line.y1 ) / ( line.x2 - line.x1 )
