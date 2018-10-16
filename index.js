@@ -130,29 +130,6 @@ function flatten(arr) {
   }, []);
 }
 
-//function findClosed (line){
-//
-//  testLines = []
-//  triangles = [] 
-//  lineNodes = [[line.x1, line.y1],[line.x2, line.y2]]
-//  lineNodes.forEach(function (node) {
-//		console.log("here")
-//    Object.keys(lines_aa).forEach(function (key) {
-//    if ([line.x1,line.y1,line.x2,line.y2].join(',') != key){
-//        key_coords = key.split(',');
-//        if( (node[0] === parseInt(key_coords[0]) && node[1] === parseInt(key_coords[1])) || (node[0] === parseInt(key_coords[2]) && node[1] ===  parseInt(key_coords[3]))){
-//		console.log(key_coords)
-//          testLines.push(key_coords)      
-//        }
-//      }
-//    });
-//  })
-//
-//
-//}
-
-
-
 function findClosed (line) {
   testLines = []
   triangles = [] 
@@ -197,7 +174,10 @@ function findClosed (line) {
        ){
          if( (equalNodes(lineNodes[0], testLine2[0]) && equalNodes(lineNodes[1], testLine1[0]) && equalNodes(testLine1[1], testLine2[1]))
           || (equalNodes(lineNodes[0], testLine1[0]) && equalNodes(lineNodes[1], testLine2[0]) && equalNodes(testLine1[1], testLine2[1]))
-          || (equalNodes(testLine2[0], testLine1[0]) && equalNodes(lineNodes[1], testLine2[0]) && equalNodes(testLine1[1], lineNodes[1]))
+          || (equalNodes(testLine1[0], testLine2[0]) && equalNodes(testLine1[1], lineNodes[0]) && equalNodes(lineNodes[1], testLine2[1]))
+          || (equalNodes(testLine1[0], lineNodes[0]) && equalNodes(testLine1[1], testLine2[0]) && equalNodes(testLine2[1], lineNodes[1]))
+          || (equalNodes(testLine2[0], lineNodes[0]) && equalNodes(testLine2[1], testLine1[0]) && equalNodes(testLine1[1], lineNodes[1]))
+          || (equalNodes(testLine2[0], testLine1[0]) && equalNodes(testLine2[1], lineNodes[0]) && equalNodes(testLine1[1], lineNodes[1]))
          ){
              triangleNodesSet = setOfNodes([lineNodes[0], lineNodes[1], testLine1[0], testLine1[1], testLine2[0], testLine2[1]] )
               triangles.push(flatten(triangleNodesSet))
