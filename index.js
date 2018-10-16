@@ -137,8 +137,6 @@ function findClosed (line) {
   lineNodes = [[line.x1, line.y1],[line.x2, line.y2]].sort()
   lineSlope = (line.y2-line.y1)/(line.x2 - line.x1)
 
-  console.log("lineNodes", lineNodes)
-	
   Object.keys(lines_aa).forEach(function (key) {
     if (lineKey != key){
       key_coords = key.split(',');
@@ -149,22 +147,15 @@ function findClosed (line) {
            || equalNodes(lineNodes[0], keyNodes[1])
 	   || equalNodes(lineNodes[1], keyNodes[1])
       ){
-      	console.log("testline", keyNodes)
         testLines.push(keyNodes.sort())      
       }
     }
   })
-
-  console.log("testlines.length", testLines.length)
   if (testLines.length > 1) { 
     testLines.forEach(function(testLine1){
-
      testLineSlope1 = (testLine1[1][1]-testLine1[0][1])/(testLine1[1][0]-testLine1[0][0])
-
      testLines.forEach(function(testLine2){
-
        testLineSlope2 = (testLine2[1][1]-testLine2[0][1])/(testLine2[1][0]-testLine2[0][0])
-
        if (lineKey != testLine1 
                && testLine1 != testLine2 
 	       && lineKey != testLine2
@@ -181,7 +172,6 @@ function findClosed (line) {
          ){
              triangleNodesSet = setOfNodes([lineNodes[0], lineNodes[1], testLine1[0], testLine1[1], testLine2[0], testLine2[1]] )
               triangles.push(flatten(triangleNodesSet))
-         	console.log("triangles.push", flatten(triangleNodesSet))
          }
        }	     
      })
@@ -189,25 +179,11 @@ function findClosed (line) {
   }
   return triangles
 }
-
-//node as [x,y]
 function equalNodes(node1, node2){
+  //node as [x,y]
   return node1[0] === node2[0] && node1[1] === node2[1] 
 }
-
-function containsNode(arr, node){
-  test = false
-  arr.forEach(function(n){
-    if (n[0] === node[0] && n[1] === node[1]) { test = true; } 
-
-  })
-  console.log("contains", arr, node, test )
-  return test 
-}
-
 function setOfNodes(nodeArray){
-	console.log("nodeArrayLength", nodeArray.length)
-	console.log("nodeArrayBefore", nodeArray)
   for(i = 0; i < nodeArray.length; i++){
     for(j = i+1; j < nodeArray.length; j++){
       //console.log( "i", i, "j", j, "nodeArray", nodeArray)
@@ -217,22 +193,12 @@ function setOfNodes(nodeArray){
       }
     }
   }
-	console.log("nodeArrayAfter", nodeArray)
  return nodeArray
 }
 
 function findLine ( line, x1a, y1a, x2a, y2a ){
   return lines_aa[[[(line.x1 + x1a), (line.y1 + y1a)], [(line.x2 + x2a), (line.y2 + y2a)]].sort().join(',')]  
 }
-
-function mutateLine (line, xSpacing, ySpacing) {
-  return { yLine1 : [line.x1, (line.y1 + ySpacing), line.x2, line.y2].join(',') , 
-	   yLine2 : [line.x1, line.y1, line.x2, (line.y2 + ySpacing)].join(',') , 
-           xLine1 : [(line.x1 + xSpacing), line.y1, line.x2, line.y2].join(',') ,
-	   xLine2 : [line.x1, line.y1, (line.x2 + xSpacing), line.y2].join(',')
-  }
-}
-
 function validate (line) {
   return validateNode(line.x1, line.y1) &&
 		validateNode(line.x2, line.y2) &&
