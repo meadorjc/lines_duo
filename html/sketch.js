@@ -53,6 +53,7 @@ function draw () {
   background(bgColor)
   if (showGrid) grid.show()
 
+  strokeCap(ROUND)
   //draw existing lines 
   Object.keys(gridLines).forEach(function (key) {
     // split the key into array
@@ -64,6 +65,9 @@ function draw () {
 
   Object.keys(tri_aa).forEach(function (key){
 	  //console.log(key)
+          strokeWeight(.5)
+          stroke(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, tri_aa[key].color.a)
+          fill(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, 155)
 	  keySplit = key.split(',')
 	  triangle(keySplit[0],keySplit[1],keySplit[2],keySplit[3],keySplit[4],keySplit[5])
   })
