@@ -1,5 +1,4 @@
 let showLine = []
-let diagonal = false
 let showGrid = true
 let colorInput
 let bgColor = '#434343'
@@ -9,29 +8,33 @@ var grid
 var nodes = []
 var nodes_aa = {}
 var cnv
-var initLoad = {
-  s_id: '',
-  m_id: '',
-  color: { r: 255,
-    g: 0,
-    b: 0,
-    a: 100
-  },
-  width: 1000,
-  height: 1000,
-  spacing: 50,
-  lineWidth : 1
-}
+
+// initLoad = {
+//  s_id: '',
+//  m_id: '',
+//  color: { r: 255,
+//    g: 255,
+//    b: 255,
+//    a: 100
+//  },
+//  width: 1000,
+//  height: 1000,
+//  spacing: 50,
+//  lineWidth : 1
+//}
 
 function setup () {
+
   frameRate(30)
   cnv = createCanvas(initLoad.width, initLoad.height)
   centerCanvas();
   grid = new Grid(initLoad.width, initLoad.height, initLoad.spacing, 1)
 
   cnv.mouseMoved(findNodes)
-  initButtons();
+  initButtons(initLoad.color);
 
+  // if the mouse leaves the canvas set preview line to null
+  // and stop drawing
   cnv.elt.onmouseleave = function () {
     showLine.x1 = null
     showLine.y1 = null
@@ -41,6 +44,7 @@ function setup () {
   }
 
   //convert color and send to server
+  // loop (draw) when mouse is over canvas
   cnv.elt.onmouseover = function () {
     hexToRgbValue = hexToRgb(colorInput.value())
     bgColor = buttonBgColor.value()
@@ -50,46 +54,64 @@ function setup () {
 }
 
 function draw () {
+  usersAA = {}
+
   background(bgColor)
+
   if (showGrid) grid.show()
 
-  strokeCap(ROUND)
-  //draw existing lines 
-  Object.keys(gridLines).forEach(function (key) {
-    // split the key into array
-    key_coords = key.split(',');
-    strokeWeight(gridLines[key].lineWidth);
-    stroke(gridLines[key].color.r, gridLines[key].color.g, gridLines[key].color.b, gridLines[key].color.a);
-    line(key_coords[0], key_coords[1], key_coords[2], key_coords[3]);
-  });
-
+  //draw triangles
   Object.keys(tri_aa).forEach(function (key){
-	  //console.log(key)
-          strokeWeight(.5)
-          stroke(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, tri_aa[key].color.a)
-          fill(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, 155)
+          if(isNaN(usersAA[tri_aa[key].user])){
+		usersAA[tri_aa[key].user] = 1
+	  } else {
+		  usersAA[tri_aa[key].user] += 1
+	  }
+          strokeWeight(0)
+          stroke(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, 150)
+          fill(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, 150)
+
 	  keySplit = key.split(',')
-	  triangle(keySplit[0],keySplit[1],keySplit[2],keySplit[3],keySplit[4],keySplit[5])
+	  triangle(keySplit[0]-1,keySplit[1]-1,keySplit[2]-1,keySplit[3]-1,keySplit[4]-1,keySplit[5]-1)
   })
 
-  textSize(10);
-  text(key, 33, 65);
-  text(keyCode, 53, 65);
+  //draw existing lines 
+  Object.keys(gridLines)
+    .map(c => ({ key: c, value: gridLines[c]}))
+    .sort((a, b) => new Date(a.value.timestamp) - new Date(b.value.timestamp))
+    .forEach(function (key) {
+      strokeWeight(key.value.lineWidth);
+      stroke(key.value.color.r, key.value.color.g, key.value.color.b, key.value.color.a);
+
+      keySplit = key.key.split(',');
+      line(keySplit[0], keySplit[1], keySplit[2], keySplit[3]);
+  });
+
+
+  $('#users').empty();
+  Object.keys(usersAA)
+    .map(c => ({ key: c, value: usersAA[c]}))	
+    .sort((a, b) => b.value - a.value)
+    .forEach(function (key){
+	$('#users').append('<div>' + key.key.substring(0, 5) + '    ' + usersAA[key.key] + '<div>');
+
+  })
+
+
 
   // show preview line
   stroke(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], initLoad.color.a);
   strokeWeight(initLoad.lineWidth)
   fill(255, 0, 0);
 
-
   if (mouseIsPressed) {
-    //console.log("mousePressed", showLine);
     socket.emit('placeline', showLine);
   }
 
   // draw line if showLine is not null
-  if(showLine.x1 && showLine.y1 && showLine.x2 && showLine.y2) 
+  if (showLine.x1 && showLine.y1 && showLine.x2 && showLine.y2) {
     line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
+  }
 }
 
 function mousePressed () {
@@ -102,23 +124,12 @@ function processKeys () {
 
 }
 function findNodes () {
-  //if mouse pointer is within bounds
+	
+  // if mouse pointer is within bounds
   if (mouseX >= initLoad.spacing && mouseX <= width - initLoad.spacing && mouseY >= initLoad.spacing && mouseY <= height - initLoad.spacing) {
     // Origin Node
     d1x = (mouseX % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
     d1y = (mouseY % initLoad.spacing) >= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
-
-    // Connecting Node
-    //d2x = (mouseX % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseX / initLoad.spacing) * initLoad.spacing)
-    //d2y = (mouseY % initLoad.spacing) <= (initLoad.spacing / 2) ? (Math.ceil(mouseY / initLoad.spacing) * initLoad.spacing) : (Math.floor(mouseY / initLoad.spacing) * initLoad.spacing)
-
-    ////makes line straight if below/above threshold of spacing/4 
-    //if (abs((mouseX - d1x)) < (initLoad.spacing/4)) { d2x = d1x }
-    //if (abs((mouseY - d1y)) < (initLoad.spacing/4)) { d2y = d1y }
-	  
-    // Decide connecting node direction
-    //console.log((mouseY-d1y),(mouseX-d1x), (mouseY-d1y)/(mouseX-d1x))
-   // console.log((Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI))
 
     deg = Math.atan2(mouseY-d1y, mouseX-d1x) * 180 / Math.PI
     
@@ -154,16 +165,9 @@ function findNodes () {
       d2x = Math.ceil(mouseX / initLoad.spacing) * initLoad.spacing
       d2y = Math.floor(mouseY / initLoad.spacing) * initLoad.spacing
     }
-    //console.log(mouseX, mouseY, d1x, d1y, d2x, d2y, 3, initLoad.s_id, initLoad.m_id);
-    //showLine = new Line(d1x, d1y, d2x, d2y, 6, initLoad.s_id, initLoad.m_id);
     showLine = new Line(d1x, d1y, d2x, d2y, initLoad.lineWidth, initLoad.s_id, initLoad.m_id)
   }
 }
-
-function placeLine () {
-  // socket.emit('placeline', showLine);
-}
-
 function centerCanvas() {
   var x = (windowWidth - width) / 2;
   var y = (windowHeight - height) / 2;
@@ -171,6 +175,4 @@ function centerCanvas() {
 }
 function windowResized() {
   centerCanvas();
-}
-function clearLine () {
 }

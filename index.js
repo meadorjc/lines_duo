@@ -8,6 +8,10 @@ var http = require('http').Server(app)
 var bodyParser = require('body-parser')
 var io = require('socket.io')(http)
 
+let lines_aa = {}
+let tri_aa = {}
+let users = {}
+
 const morgan = require('morgan')
 
 const mongoose = require('mongoose')
@@ -24,9 +28,6 @@ const gridHeight = 1000
 const clear = { color: { r: 0, g: 0, b: 0, a: 0 } }
 const defaultLineWidth = 10
 
-lines_aa = {}
-tri_aa = {}
-
 app.use(morgan('dev'))
 app.use(express.static(htmlPath))
 
@@ -36,11 +37,10 @@ mongoose.connect('mongodb://localhost/lines')
 // handle connection event
 db.on('error', console.error.bind(console, 'connection error:'))
 
-
-
-
 // start the socket connection and define listeners
 io.on('connection', function (socket) {
+  
+  
   const bear = new Bear({
     name: 'test',
     color: { r: (Math.random() * 254),
@@ -61,12 +61,15 @@ io.on('connection', function (socket) {
     lineWidth : defaultLineWidth
 
   }
-  socket.emit('initialize', initLoad)
-
   bear.save(function (err, bear) {
     if (err) res.send('error: ' + err)
     console.log('save.')
   })
+
+  // track user by socket.id
+  users[socket.id] = { name : socket.id, triangleCount : 0, color : bear.color }
+	
+  socket.emit('initialize', initLoad)
 
   socket.on('disconnect', function () {
     console.log('user disconnected')
@@ -74,29 +77,27 @@ io.on('connection', function (socket) {
 
   // when a line gets placed
   socket.on('placeline', function (line) {
-    //end points of line must be sorted to normalize index
+	  
+    // end points of line must be sorted to normalize index
     sortedLineArr =  [[line.x1, line.y1], [line.x2, line.y2]].sort()
-    sortedLineObj = { x1 : sortedLineArr[0][0],
-        y1 : sortedLineArr[0][1],
-        x2 : sortedLineArr[1][0],
-	y2 : sortedLineArr[1][1]
-    }
+    triangles = findClosed({ 
+      x1 : sortedLineArr[0][0],
+      y1 : sortedLineArr[0][1],
+      x2 : sortedLineArr[1][0],
+      y2 : sortedLineArr[1][1]
+    })
     key = sortedLineArr.join(',') 
-    triangles = findClosed(sortedLineObj)
-    // find the user
-    //console.log(line, ( line.y2 - line.y1 ) / ( line.x2 - line.x1 ))
+
+    users[socket.id].triangleCount += triangles.length;
+
     Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
-        // TODO: append lines to user's db document
-        //	if (!lines_aa[lineString] || lines_aa[lineString] == clear.color) lines_aa[lineString] = doc.color;
-        //	else lines_aa[lineString] = clear.color;
-        lines_aa[key] = { color : doc.color, lineWidth : doc.lineWidth } 
-        //lines_aa[key2] = { color : doc.color, lineWidth : doc.lineWidth } 
+        lines_aa[key] = { color : doc.color, lineWidth : doc.lineWidth, timestamp : new Date() }
         if (triangles != null) {
-		triangles.forEach( function (triangle){
-                  tri_aa[sortTriangle(triangle).join(',')] = { color : doc.color, lineWidth : doc.lineWidth } 
-		})
+          triangles.forEach( function (triangle){
+            tri_aa[sortTriangle(triangle).join(',')] = { color : doc.color, lineWidth : doc.lineWidth, user : socket.id} 
+	 })
         }
       }
     })
@@ -104,7 +105,6 @@ io.on('connection', function (socket) {
   socket.on('colorInput', function (input) {
     Bear.findByIdAndUpdate( input.m_id, { color : input.color, lineWidth : input.lineWidth }, function (err, doc) {
       if (err) console.log(err)
-      //console.log(doc)
     }) 
   })
   // when client is ready, start timer and begin sending existing lines
@@ -122,14 +122,12 @@ http.listen(port, function () {
 })
 function sortTriangle(triangle){
   return flatten([[triangle[0],triangle[1]],[triangle[2],triangle[3]],[triangle[4],triangle[5]]].sort())
-
 }
 function flatten(arr) {
   return arr.reduce(function (flat, toFlatten) {
     return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
   }, []);
 }
-
 function findClosed (line) {
   testLines = []
   triangles = [] 

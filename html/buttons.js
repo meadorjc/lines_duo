@@ -1,9 +1,7 @@
-function initButtons(){
-
-
+function initButtons(color){
 
   //button for line color
-  colorInput =	createInput('#ffffff', 'color')
+  colorInput =	createInput(rgbToHex(color.r, color.g, color.b), 'color')
   colorInput.position(150, 10)
   
   //button for bg color
