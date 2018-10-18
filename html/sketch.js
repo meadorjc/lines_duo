@@ -9,7 +9,7 @@ var nodes = []
 var nodes_aa = {}
 var cnv
 
- initLoad = {
+var initLoad = {
   s_id: '',
   m_id: '',
   color: { r: 255,
