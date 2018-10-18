@@ -9,19 +9,19 @@ var nodes = []
 var nodes_aa = {}
 var cnv
 
-// initLoad = {
-//  s_id: '',
-//  m_id: '',
-//  color: { r: 255,
-//    g: 255,
-//    b: 255,
-//    a: 100
-//  },
-//  width: 1000,
-//  height: 1000,
-//  spacing: 50,
-//  lineWidth : 1
-//}
+ initLoad = {
+  s_id: '',
+  m_id: '',
+  color: { r: 255,
+    g: 255,
+    b: 255,
+    a: 100
+  },
+  width: 1000,
+  height: 1000,
+  spacing: 50,
+  lineWidth : 1
+}
 
 function setup () {
 
