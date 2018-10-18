@@ -11,10 +11,9 @@
 	<script language="javascript" type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script> 
-		var socket = io(); 
+		let socket = io(); 
 		let gridLines = {};
                 let tri_aa = {}; 
-		let initLoad
 		socket.on('initialize', function (response) {
 				initLoad = {
 					//name: response.name, 
