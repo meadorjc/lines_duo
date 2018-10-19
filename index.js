@@ -11,6 +11,7 @@ var io = require('socket.io')(http)
 let lines_aa = {}
 let tri_aa = {}
 let users = {}
+let userLines = {}
 
 const morgan = require('morgan')
 
@@ -67,11 +68,12 @@ io.on('connection', function (socket) {
   })
 
   // track user by socket.id
-  users[socket.id] = { name : socket.id, triangleCount : 0, color : bear.color }
+  users[socket.id] = { name : socket.id, color : bear.color }
 	
   socket.emit('initialize', initLoad)
 
   socket.on('disconnect', function () {
+    users[socket.id] = null
     console.log('user disconnected')
   })
 
@@ -88,8 +90,6 @@ io.on('connection', function (socket) {
     })
     key = sortedLineArr.join(',') 
 
-    users[socket.id].triangleCount += triangles.length;
-
     Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
@@ -102,17 +102,38 @@ io.on('connection', function (socket) {
       }
     })
   })
+	
+  // when user selects a color
   socket.on('colorInput', function (input) {
     Bear.findByIdAndUpdate( input.m_id, { color : input.color, lineWidth : input.lineWidth }, function (err, doc) {
       if (err) console.log(err)
     }) 
   })
-  // when client is ready, start timer and begin sending existing lines
+	
+  // when client is ready, start timer and begin sending existing lines and triangles
   socket.on('clientReady', function () {
-    var timer = setInterval(function () {
+     setInterval(function () {
       socket.emit('lines_aa', lines_aa)
       socket.emit('tri_aa', tri_aa)
+      socket.emit('userLines', userLines)
     }, 100)
+     setInterval(function () {
+      socket.emit('acceptLine')
+    }, 1000)
+  })
+  
+  socket.on('displayLine', function (line) {
+
+	  console.log (line)
+    lineCoords = [line.x1, line.y1, line.x2, line.y2]
+	  
+    Bear.findById(line.m_id, 'color ', { lean: true }, function (err, doc) {
+      // validate the nodes and associate the color to the line
+      if (validate(line)) {
+	    console.log ( 'found bear')
+       userLines[line.s_id] = {line : lineCoords,  color : doc.color }
+      }   
+    })
   })
 })
 

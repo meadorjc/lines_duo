@@ -40,7 +40,7 @@ function setup () {
     showLine.y1 = null
     showLine.x2 = null
     showLine.x2 = null
-    noLoop()
+    //noLoop()
   }
 
   //convert color and send to server
@@ -49,7 +49,7 @@ function setup () {
     hexToRgbValue = hexToRgb(colorInput.value())
     bgColor = buttonBgColor.value()
     socket.emit('colorInput', { m_id: initLoad.m_id, color : { r : hexToRgbValue[0], g : hexToRgbValue[1], b : hexToRgbValue[2], a : 255}, lineWidth : initLoad.lineWidth })
-    loop()
+    //loop()
   }
 }
 
@@ -98,6 +98,12 @@ function draw () {
   })
 
 
+  Object.keys(userLines).forEach(function (id) {
+    l = userLines[id].line
+    c = userLines[id].color
+    stroke(c.r, c.b, c.g, c.a)
+    line(l[0], l[1], l[2], l[3])
+  })
 
   // show preview line
   stroke(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], initLoad.color.a);
@@ -110,6 +116,7 @@ function draw () {
 
   // draw line if showLine is not null
   if (showLine.x1 && showLine.y1 && showLine.x2 && showLine.y2) {
+    socket.emit('displayLine', showLine)
     line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
   }
 }

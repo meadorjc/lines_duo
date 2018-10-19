@@ -14,6 +14,7 @@
 		let socket = io(); 
 		let gridLines = {};
                 let tri_aa = {}; 
+                let userLines = {} 
 		socket.on('initialize', function (response) {
 				initLoad = {
 					//name: response.name, 
@@ -36,6 +37,9 @@
 		});
 		socket.on('tri_aa', function(triangles){
 				tri_aa = triangles;
+		});
+		socket.on('userLines', function(res){
+				userLines = res 
 		});
 	</script>
 </head>
