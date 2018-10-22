@@ -101,7 +101,7 @@ function draw () {
   Object.keys(userLines).forEach(function (id) {
     l = userLines[id].line
     c = userLines[id].color
-    stroke(c.r, c.b, c.g, c.a)
+    stroke(c.r, c.g, c.b, 150)
     line(l[0], l[1], l[2], l[3])
   })
 
