@@ -15,6 +15,8 @@
 		let gridLines = {};
                 let tri_aa = {}; 
                 let userLines = {} 
+		let highlightLines
+		let highlightTriangles
 		socket.on('initialize', function (response) {
 				initLoad = {
 					//name: response.name, 
@@ -32,14 +34,20 @@
 			};
 		socket.emit('clientReady', {});
 		});
-		socket.on('lines_aa', function(lines){
-				gridLines = lines;
+		socket.on('lines_aa', function(res){
+				gridLines = res;
 		});
-		socket.on('tri_aa', function(triangles){
-				tri_aa = triangles;
+		socket.on('tri_aa', function(res){
+				tri_aa = res;
 		});
 		socket.on('userLines', function(res){
 				userLines = res 
+		});
+		socket.on('highlightLines', function(res){
+				highlightLines = res 
+		});
+		socket.on('highlightTriangles', function(res){
+				highlightTriangles = res 
 		});
 	</script>
 </head>

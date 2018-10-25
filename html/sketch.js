@@ -75,7 +75,7 @@ function draw () {
 	  triangle(keySplit[0]-1,keySplit[1]-1,keySplit[2]-1,keySplit[3]-1,keySplit[4]-1,keySplit[5]-1)
   })
 
-  //draw existing lines 
+  //draw lines placed by users
   Object.keys(gridLines)
     .map(c => ({ key: c, value: gridLines[c]}))
     .sort((a, b) => new Date(a.value.timestamp) - new Date(b.value.timestamp))
@@ -88,6 +88,7 @@ function draw () {
   });
 
 
+  // show other users in user list
   $('#users').empty();
   Object.keys(usersAA)
     .map(c => ({ key: c, value: usersAA[c]}))	
@@ -96,8 +97,7 @@ function draw () {
 	$('#users').append('<div>' + key.key.substring(0, 5) + '    ' + usersAA[key.key] + '<div>');
 
   })
-
-
+  //show other users's preview lines
   Object.keys(userLines).forEach(function (id) {
     l = userLines[id].line
     c = userLines[id].color
@@ -105,12 +105,37 @@ function draw () {
     line(l[0], l[1], l[2], l[3])
   })
 
+  if(highlightLines){
+      stroke(191, 192, 63, 150)
+      strokeWeight(initLoad.lineWidth+20);
+      line(highlightLines.x1, highlightLines.y1, highlightLines.x2, highlightLines.y2)
+      highlightLines = null
+  }	
+	
+  if(highlightTriangles){
+    highlightTriangles.forEach(function (t) {
+      //strokeCap(ROUND);
+      strokeWeight(0)
+      stroke(191, 192, 63, 150)
+      fill(191, 192, 63, 150)
+      triangle(t[0], t[1], t[2], t[3], t[4], t[5])
+    })
+    highlightTriangles = null
+  }	
+	
   // show preview line
   stroke(hexToRgbValue[0], hexToRgbValue[1], hexToRgbValue[2], initLoad.color.a);
   strokeWeight(initLoad.lineWidth)
   fill(255, 0, 0);
 
   if (mouseIsPressed) {
+	  
+    //show highlight line
+    //stroke(191, 192, 63, 50)
+    //strokeWeight(initLoad.lineWidth+5);
+    line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
+	  
+    //send selected line to server
     socket.emit('placeline', showLine);
   }
 

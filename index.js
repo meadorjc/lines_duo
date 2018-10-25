@@ -12,6 +12,8 @@ let lines_aa = {}
 let tri_aa = {}
 let users = {}
 let userLines = {}
+let highlightLines
+let highlightTriangles
 
 const morgan = require('morgan')
 
@@ -101,6 +103,10 @@ io.on('connection', function (socket) {
         }
       }
     })
+
+    highlightLines = line
+    highlightTriangles = triangles
+	
   })
 	
   // when user selects a color
@@ -116,21 +122,27 @@ io.on('connection', function (socket) {
       socket.emit('lines_aa', lines_aa)
       socket.emit('tri_aa', tri_aa)
       socket.emit('userLines', userLines)
+	     
+      //highlight when a user clicks a line
+      socket.emit('highlightLines', highlightLines)
+      highlightLines = null
+      
+      //highlight when a user forms triangles
+      socket.emit('highlightTriangles', highlightTriangles)
+      highlightTriangles = null
+
     }, 100)
      setInterval(function () {
       socket.emit('acceptLine')
     }, 1000)
   })
-  
-  socket.on('displayLine', function (line) {
 
-	  console.log (line)
+  //displays preview lines of other users
+  socket.on('displayLine', function (line) {
     lineCoords = [line.x1, line.y1, line.x2, line.y2]
-	  
     Bear.findById(line.m_id, 'color ', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
-	    console.log ( 'found bear')
        userLines[line.s_id] = {line : lineCoords,  color : doc.color }
       }   
     })
