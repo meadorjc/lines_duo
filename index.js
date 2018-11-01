@@ -151,11 +151,11 @@ io.on('connection', function (socket) {
 
   //displays preview lines of other users
   socket.on('displayLine', function (line) {
-   if (line.m_id != null) {
+   if (line.m_id != null && line.m_id != "") {
     lineCoords = [line.x1, line.y1, line.x2, line.y2]
     Bear.findById(line.m_id, 'color ', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
-      if (validate(line)) {
+      if (validate(line) ) {
        userLines[line.m_id] = {line : lineCoords,  color : doc.color }
       }   
     })
