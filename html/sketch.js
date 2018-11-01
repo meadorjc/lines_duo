@@ -54,7 +54,8 @@ function setup () {
 }
 
 function draw () {
-  usersAA = {}
+  usersTriCount = {}
+  usersLineCount = {}
 
   background(bgColor)
 
@@ -62,10 +63,10 @@ function draw () {
 
   //draw triangles
   Object.keys(tri_aa).forEach(function (key){
-          if(isNaN(usersAA[tri_aa[key].user])){
-		usersAA[tri_aa[key].user] = 1
+          if(isNaN(usersTriCount[tri_aa[key].user])){
+		usersTriCount[tri_aa[key].user] = 1
 	  } else {
-		  usersAA[tri_aa[key].user] += 1
+		  usersTriCount[tri_aa[key].user] += 1
 	  }
           strokeWeight(0)
           stroke(tri_aa[key].color.r, tri_aa[key].color.g, tri_aa[key].color.b, 150)
@@ -80,6 +81,11 @@ function draw () {
     .map(c => ({ key: c, value: gridLines[c]}))
     .sort((a, b) => new Date(a.value.timestamp) - new Date(b.value.timestamp))
     .forEach(function (key) {
+          if(isNaN(usersLineCount[gridLines[key.key].user])){
+		usersLineCount[gridLines[key.key].user] = 1
+	  } else {
+		  usersLineCount[gridLines[key.key].user] += 1
+	  }
       strokeWeight(key.value.lineWidth);
       stroke(key.value.color.r, key.value.color.g, key.value.color.b, key.value.color.a);
 
@@ -90,11 +96,11 @@ function draw () {
 
   // show other users in user list
   $('#users').empty();
-  Object.keys(usersAA)
-    .map(c => ({ key: c, value: usersAA[c]}))	
+  Object.keys(usersLineCount)
+    .map(c => ({ key: c, value: usersLineCount[c]}))	
     .sort((a, b) => b.value - a.value)
     .forEach(function (key){
-	$('#users').append('<div>' + key.key.substring(0, 5) + '    ' + usersAA[key.key] + '<div>');
+	$('#users').append('<div>' + key.key + '    ' + usersTriCount[key.key]  + "/" + usersLineCount[key.key] + '<div>');
 
   })
   //show other users's preview lines

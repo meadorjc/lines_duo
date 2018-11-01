@@ -8,12 +8,12 @@ var http = require('http').Server(app)
 var bodyParser = require('body-parser')
 var io = require('socket.io')(http)
 
-let lines_aa = {}
-let tri_aa = {}
-let users = {}
-let userLines = {}
-let highlightLines
-let highlightTriangles
+let lines_aa = {}	// lines placed by users to display
+let tri_aa = {}		// triangles to display
+let users = {}		// users connected
+let userLines = {}	// preview lines of users' mouse pointers 
+let highlightLines	// lines highlighted on click
+let highlightTriangles	// triangles highlighted on click
 
 const morgan = require('morgan')
 
@@ -25,11 +25,11 @@ const Bear = require('./app/models/bear')
 const htmlPath = path.join(__dirname, 'html')
 const port = process.env.PORT || 8080
 
-const spacing = 100 
+const spacing = 50 
 const gridWidth = 1000
 const gridHeight = 1000
 const clear = { color: { r: 0, g: 0, b: 0, a: 0 } }
-const defaultLineWidth = 10
+const defaultLineWidth = 5
 
 app.use(morgan('dev'))
 app.use(express.static(htmlPath))
@@ -69,13 +69,25 @@ io.on('connection', function (socket) {
     console.log('save.')
   })
 
-  // track user by socket.id
-  users[socket.id] = { name : socket.id, color : bear.color }
+  // track user by mongo_id 
+  users[initLoad.m_id] = { name : initLoad.m_id, color : bear.color }
 	
   socket.emit('initialize', initLoad)
 
   socket.on('disconnect', function () {
-    users[socket.id] = null
+    delete users[initLoad.m_id]
+	  
+    Object.keys(tri_aa).forEach(function (key){
+      if (tri_aa[key].user === initLoad.m_id){
+	delete tri_aa[key]
+      }
+    })
+    Object.keys(lines_aa).forEach(function (key){
+      if (lines_aa[key].user === initLoad.m_id){
+        delete lines_aa[key]
+      }
+    })
+
     console.log('user disconnected')
   })
 
@@ -95,10 +107,10 @@ io.on('connection', function (socket) {
     Bear.findById(line.m_id, 'color lineWidth', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
-        lines_aa[key] = { color : doc.color, lineWidth : doc.lineWidth, timestamp : new Date() }
+        lines_aa[key] = { color : doc.color, lineWidth : doc.lineWidth, timestamp : new Date(), user : initLoad.m_id }
         if (triangles != null) {
           triangles.forEach( function (triangle){
-            tri_aa[sortTriangle(triangle).join(',')] = { color : doc.color, lineWidth : doc.lineWidth, user : socket.id} 
+            tri_aa[sortTriangle(triangle).join(',')] = { color : doc.color, lineWidth : doc.lineWidth, user : initLoad.m_id} 
 	 })
         }
       }
@@ -143,7 +155,7 @@ io.on('connection', function (socket) {
     Bear.findById(line.m_id, 'color ', { lean: true }, function (err, doc) {
       // validate the nodes and associate the color to the line
       if (validate(line)) {
-       userLines[line.s_id] = {line : lineCoords,  color : doc.color }
+       userLines[line.m_id] = {line : lineCoords,  color : doc.color }
       }   
     })
   })
