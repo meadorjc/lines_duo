@@ -76,7 +76,8 @@ io.on('connection', function (socket) {
 
   socket.on('disconnect', function () {
     delete users[initLoad.m_id]
-	  
+    delete userLines[initLoad.m_id]
+
     Object.keys(tri_aa).forEach(function (key){
       if (tri_aa[key].user === initLoad.m_id){
 	delete tri_aa[key]
@@ -88,6 +89,7 @@ io.on('connection', function (socket) {
       }
     })
 
+   
     console.log('user disconnected')
   })
 
@@ -113,11 +115,12 @@ io.on('connection', function (socket) {
             tri_aa[sortTriangle(triangle).join(',')] = { color : doc.color, lineWidth : doc.lineWidth, user : initLoad.m_id} 
 	 })
         }
+	      
+        highlightLines = line
+        highlightTriangles = triangles
       }
     })
 
-    highlightLines = line
-    highlightTriangles = triangles
 	
   })
 	

@@ -51,6 +51,9 @@ function setup () {
     socket.emit('colorInput', { m_id: initLoad.m_id, color : { r : hexToRgbValue[0], g : hexToRgbValue[1], b : hexToRgbValue[2], a : 255}, lineWidth : initLoad.lineWidth })
     //loop()
   }
+ mouseReleased = function () {
+ 	socket.emit('placeline', showLine);
+ }
 }
 
 function draw () {
@@ -134,16 +137,16 @@ function draw () {
   strokeWeight(initLoad.lineWidth)
   fill(255, 0, 0);
 
-  if (mouseIsPressed) {
-	  
-    //show highlight line
-    //stroke(191, 192, 63, 50)
-    //strokeWeight(initLoad.lineWidth+5);
-    line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
-	  
-    //send selected line to server
-    socket.emit('placeline', showLine);
-  }
+ // if (mouseIsPressed) {
+ //         
+ //   //show highlight line
+ //   //stroke(191, 192, 63, 50)
+ //   //strokeWeight(initLoad.lineWidth+5);
+ //   //line(showLine.x1, showLine.y1, showLine.x2, showLine.y2)
+ //         
+ //   //send selected line to server
+ //   socket.emit('placeline', showLine);
+ // }
 
   // draw line if showLine is not null
   if (showLine.x1 && showLine.y1 && showLine.x2 && showLine.y2) {
